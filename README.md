@@ -16,17 +16,9 @@ A web app that lets verified Western students share rides to other cities — ch
 
 ## Documentation
 
-All technical docs live in [`/docs`](docs/README.md).
+All technical docs live in [`/docs`](docs/) — see the [docs index](docs/README.md) for the full list.
 
-| Doc | What's inside |
-|---|---|
-| [Development Plan](docs/development-plan.md) | 5-week dev plan, phases, build order |
-| [Technical Design](docs/technical-design.md) | Stack, architecture |
-| [ERD](docs/erd.md) | Database tables and relationships |
-| [API Spec](docs/api-spec.md) | Endpoints, request/response, errors |
-| [Testing](docs/testing.md) | Test checklists |
-| [Decisions](docs/decisions/) | Why we chose what we chose |
-| [Contributing](CONTRIBUTING.md) | Branches, commits, PRs, issues |
+Before contributing, read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Getting Started
 
