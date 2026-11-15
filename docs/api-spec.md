@@ -1,108 +1,114 @@
 # API Specification
 
-> **Status:** Draft — endpoints will change as the design is finalized
+> **Status:** Auth endpoints implemented. Rides and ride requests: draft.
 
 ## Conventions
 
-- Base URL: `/api`
+- Base URL (local): `http://localhost:5001/api`
 - Request and response bodies are JSON.
-- Auth: session-based login (TBD). 🔒 = login required.
+- **Auth: session cookie** (Flask-Login). After `POST /auth/login`, the browser stores a cookie and sends it automatically.
+  From React, every call must use `credentials: "include"` (already done in `frontend/src/api.js`).
+- 🔒 = login required. Without a session, the API returns `401 NOT_LOGGED_IN`.
 
 ### Error format
 
+Every error looks like this:
+
 ```json
-{ "error": { "code": "RIDE_FULL", "message": "No seats left on this ride." } }
+{ "error": { "code": "EMAIL_TAKEN", "message": "An account with this email already exists." } }
 ```
 
-### Status codes
+Show `message` to the user; use `code` in code to decide what to do.
 
-| Code | Meaning |
-|---|---|
-| 200 | OK |
-| 201 | Created |
-| 400 | Invalid input |
-| 401 | Not logged in |
-| 403 | Not allowed (e.g. not the driver) |
-| 404 | Not found |
-| 409 | Conflict (e.g. duplicate booking, ride full) |
+## Auth
 
-## Endpoints
+### POST `/auth/signup`
 
-### Auth
-
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| POST | `/auth/signup` | Create unverified account, send verification email | — |
-| GET | `/auth/verify/{token}` | Verify email | — |
-| POST | `/auth/resend` | Resend verification email | — |
-| POST | `/auth/login` | Log in | — |
-| POST | `/auth/logout` | Log out | 🔒 |
-| POST | `/auth/forgot` | Send password reset email | — |
-| POST | `/auth/reset/{token}` | Set new password | — |
-
-### Users
-
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| GET | `/users/me` | My profile | 🔒 |
-| PATCH | `/users/me` | Update profile | 🔒 |
-
-### Rides
-
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| GET | `/rides?destination=&date=` | Search open rides | 🔒 |
-| POST | `/rides` | Post a ride | 🔒 |
-| GET | `/rides/{id}` | Ride details | 🔒 |
-| PATCH | `/rides/{id}/cancel` | Cancel my ride (driver) | 🔒 |
-| GET | `/rides/mine` | Rides I'm driving | 🔒 |
-
-### Bookings
-
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| POST | `/rides/{id}/bookings` | Request a seat | 🔒 |
-| GET | `/rides/{id}/bookings` | Requests on my ride (driver) | 🔒 |
-| PATCH | `/bookings/{id}` | Accept / decline (driver) | 🔒 |
-| PATCH | `/bookings/{id}/cancel` | Cancel my booking (rider) | 🔒 |
-| GET | `/bookings/mine` | Rides I'm riding | 🔒 |
-
-## Endpoint Details
-
-Fill in one block per endpoint as it's implemented.
-
-### POST `/rides`
+Creates an **unverified** account and sends a verification link.
+(Until email sending is set up, the link is printed in the backend terminal.)
 
 **Request**
 ```json
-{
-  "origin": "London, ON",
-  "destination": "Toronto, ON",
-  "depart_at": "2026-12-18T14:00:00",
-  "pickup_point": "UCC",
-  "dropoff_point": "Union Station",
-  "max_seats": 3,
-  "pricing_type": "per_seat",
-  "price": 20.00,
-  "notes": "One suitcase per person"
-}
+{ "name": "Jane Doe", "email": "jane@uwo.ca", "password": "atleast8chars" }
 ```
 
-**Response — 201**
+**201**
 ```json
-{ "id": 42, "status": "open", "seats_left": 3, "...": "..." }
+{ "message": "Account created. Check your email to verify it.", "email": "jane@uwo.ca" }
 ```
 
-**Errors:** `400` missing/invalid fields, past date, `max_seats < 1` · `401` not logged in
+| Status | Code | When |
+|---|---|---|
+| 400 | `MISSING_FIELDS` | name, email or password is empty |
+| 400 | `INVALID_EMAIL_DOMAIN` | email is not `@uwo.ca` |
+| 400 | `WEAK_PASSWORD` | password shorter than 8 characters |
+| 409 | `EMAIL_TAKEN` | an account with this email already exists |
 
----
+### GET `/auth/verify/<token>`
 
-_Template for new endpoints:_
+Opened from the link in the email (not called by React). Marks the account as verified and **redirects** to the frontend:
 
-```markdown
-### METHOD `/path`
-**Auth:** yes/no
-**Request:** (params / body)
-**Response — 2xx:** (body)
-**Errors:** (status — reason)
+| Result | Redirects to |
+|---|---|
+| Verified | `/login?verify=success` |
+| Link older than 24 hours | `/login?verify=expired` |
+| Broken link | `/login?verify=invalid` |
+
+The Login page reads `verify` from the URL to show a message.
+
+### POST `/auth/resend`
+
+Sends a new verification link.
+
+**Request** `{ "email": "jane@uwo.ca" }`
+
+**200** — always the same answer, so nobody can check which emails are registered:
+```json
+{ "message": "If that account needs verifying, a new link has been sent." }
 ```
+
+### POST `/auth/login`
+
+**Request**
+```json
+{ "email": "jane@uwo.ca", "password": "atleast8chars" }
+```
+
+**200** (sets the session cookie)
+```json
+{ "user": { "id": 1, "name": "Jane Doe", "email": "jane@uwo.ca", "is_verified": true, "contact_pref": "email", "phone": null } }
+```
+
+| Status | Code | When |
+|---|---|---|
+| 401 | `INVALID_CREDENTIALS` | wrong email or password |
+| 403 | `EMAIL_NOT_VERIFIED` | account exists but email not verified yet (show a "Resend link" option) |
+
+### POST `/auth/logout` 🔒
+
+**200** `{ "message": "Logged out." }`
+
+### GET `/auth/me` 🔒
+
+Who is logged in right now. Call this when the app loads to know if the user is logged in.
+
+**200** `{ "user": { ...same as login... } }` · **401** `NOT_LOGGED_IN`
+
+## Rides (draft)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/rides?destination=&date=` | Search open rides (hides full, cancelled, past) | 🔒 |
+| POST | `/rides` | Post a ride | 🔒 |
+| GET | `/rides/<id>` | Ride details | 🔒 |
+| PATCH | `/rides/<id>/cancel` | Cancel my ride (driver) | 🔒 |
+
+## Ride requests (draft)
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/rides/<id>/requests` | Request a seat | 🔒 |
+| GET | `/rides/<id>/requests` | Requests on my ride (driver) | 🔒 |
+| PATCH | `/requests/<id>` | Accept / decline (driver) | 🔒 |
+| PATCH | `/requests/<id>/cancel` | Cancel my request (rider) | 🔒 |
+| GET | `/me/trips` | My trips: driving + riding | 🔒 |
