@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 
+from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from app.extensions import db
 
 
@@ -7,7 +10,7 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = "users"  # "user" is a reserved word in PostgreSQL
 
     id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +28,23 @@ class User(db.Model):
     __table_args__ = (
         db.CheckConstraint("contact_pref IN ('email', 'phone')", name="ck_users_contact_pref"),
     )
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        # Never include password_hash here
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "is_verified": self.is_verified,
+            "contact_pref": self.contact_pref,
+            "phone": self.phone,
+        }
 
     def __repr__(self):
         return f"<User {self.email}>"
