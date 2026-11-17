@@ -15,11 +15,12 @@ import { Button, Card, PageHeader, StatusBadge } from "../components";
 //   "riding":  [{ "id": 7, "request_id": 12, "request_status": "pending",
 //                 "origin": "London", "destination": "Ottawa",
 //                 "depart_at": "2026-11-20T08:00:00", "status": "open",
-//                 "driver_name": "Jane Doe" }]
+//                 "driver_name": "Jane Doe", "seats_left": 2 }]
 // }
 //
 // driving[].status / riding[].status: rides.status (open, full, cancelled, completed)
 // riding[].request_status: ride_requests.status (pending, accepted, declined, cancelled)
+// riding[].seats_left: seats still open on the ride (shown on pending requests)
 // driving[].passengers: names of riders whose request was accepted
 
 // ---------- Sample data for testing ----------
@@ -57,19 +58,19 @@ const SAMPLE_TRIPS = {
   riding: [
     {
       id: 8, request_id: 20, request_status: "accepted", origin: "London", destination: "Hamilton",
-      depart_at: daysFromNow(2, 15, 15), status: "open", driver_name: "Ellie Kim",
+      depart_at: daysFromNow(2, 15, 15), status: "open", driver_name: "Ellie Kim", seats_left: 1,
     },
     {
       id: 9, request_id: 21, request_status: "pending", origin: "London", destination: "Toronto",
-      depart_at: daysFromNow(5, 10), status: "open", driver_name: "Sabrina Lee",
+      depart_at: daysFromNow(5, 10), status: "open", driver_name: "Sabrina Lee", seats_left: 2,
     },
     {
       id: 7, request_id: 19, request_status: "declined", origin: "London", destination: "Niagara Falls",
-      depart_at: daysFromNow(11, 9), status: "open", driver_name: "Lauren",
+      depart_at: daysFromNow(11, 9), status: "open", driver_name: "Lauren", seats_left: 3,
     },
     {
       id: 6, request_id: 15, request_status: "accepted", origin: "London", destination: "Waterloo",
-      depart_at: daysFromNow(-6, 17), status: "completed", driver_name: "Eman",
+      depart_at: daysFromNow(-6, 17), status: "completed", driver_name: "Eman", seats_left: 0,
     },
   ],
 };
@@ -189,7 +190,7 @@ function TripCard({ trip, tab }) {
           {trip.origin} → {trip.destination}
         </h3>
         <div className="trips-badge" style={styles.badge}>
-          {tab === "driving" ? <DrivingBadge trip={trip} /> : <StatusBadge status={trip.request_status} />}
+          {tab === "driving" ? <DrivingBadge trip={trip} /> : <StatusBadge status={trip.request_status} count={trip.seats_left} />}
         </div>
       </div>
       <p style={styles.meta}>{formatDepart(trip.depart_at)}</p>
