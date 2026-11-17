@@ -15,6 +15,11 @@
   --color-warning-text: #b26a00;
   --color-danger-bg: #fdecec;
   --color-danger-text: #b42318;
+  /* Solid fills for buttons (white text passes 4.5:1 contrast) */
+  --color-success: #2e8456;
+  --color-success-hover: #287a4f;
+  --color-danger: #c9433c;
+  --color-danger-hover: #b93a33;
   --color-neutral-bg: #f0f0f3;
   --color-neutral-text: #4b5563;
 
@@ -123,7 +128,7 @@ h2 {
   color: #fff;
 }
 
-.btn--primary:hover {
+.btn--primary:not(:disabled):hover {
   background: var(--color-primary-hover);
 }
 
@@ -131,6 +136,24 @@ h2 {
   background: var(--color-surface);
   color: var(--color-text);
   border-color: var(--color-border);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.btn--danger:not(:disabled):hover {
+  background: var(--color-danger-hover);
+}
+
+.btn--success {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.btn--success:not(:disabled):hover {
+  background: var(--color-success-hover);
 }
 
 .btn:disabled {
@@ -203,22 +226,23 @@ textarea.field__input {
   font-weight: 600;
 }
 
-.badge--pending {
+/* Tones are set by StatusBadge from the status, never by pages */
+.badge--warning {
   background: var(--color-warning-bg);
   color: var(--color-warning-text);
 }
 
-.badge--accepted {
+.badge--success {
   background: var(--color-success-bg);
   color: var(--color-success-text);
 }
 
-.badge--declined {
+.badge--danger {
   background: var(--color-danger-bg);
   color: var(--color-danger-text);
 }
 
-.badge--cancelled {
+.badge--neutral {
   background: var(--color-neutral-bg);
   color: var(--color-neutral-text);
 }
