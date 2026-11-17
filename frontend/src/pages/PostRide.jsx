@@ -1,7 +1,6 @@
 import { useId, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Minus, Plus } from "lucide-react";
-import { Button, PageHeader, TextInput } from "../components";
+import { Button, NumberStepper, PageHeader, TextInput } from "../components";
 
 // Step 1 of "Post a ride". Sends the trip to step 2 (PickupDropoff.jsx) as
 // navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, pricing_type, price } })
@@ -23,23 +22,6 @@ const styles = {
     borderRadius: "var(--radius-sm)",
   },
   focused: { outline: "2px solid var(--color-primary)", outlineOffset: -1 },
-  stepperLabel: { fontWeight: 600 },
-  stepperControls: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginLeft: "auto" },
-  stepperBtn: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 28,
-    height: 28,
-    padding: 0,
-    border: "none",
-    borderRadius: "50%",
-    background: "var(--color-primary-soft)",
-    color: "var(--color-primary)",
-    cursor: "pointer",
-  },
-  stepperBtnDisabled: { opacity: 0.4, cursor: "not-allowed" },
-  stepperValue: { minWidth: 20, textAlign: "center", fontSize: 16, fontWeight: 700 },
   priceBox: { gap: "var(--space-1)" },
   priceInput: {
     flex: 1,
@@ -119,13 +101,6 @@ export default function PostRide() {
     };
   }
 
-  function changeSeats(delta) {
-    setForm((prev) => ({
-      ...prev,
-      seats: Math.min(MAX_SEATS, Math.max(MIN_SEATS, prev.seats + delta)),
-    }));
-  }
-
   function handleSubmit(e) {
     e.preventDefault();
     const next = validate(form);
@@ -195,35 +170,16 @@ export default function PostRide() {
           />
         </div>
 
-        <div className="field">
-          <span className="field__label">Available seats</span>
-          <div style={styles.box}>
-            <span style={styles.stepperLabel}>Passengers</span>
-            <div style={styles.stepperControls}>
-              <button
-                type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats <= MIN_SEATS && styles.stepperBtnDisabled) }}
-                onClick={() => changeSeats(-1)}
-                disabled={form.seats <= MIN_SEATS}
-                aria-label="Remove a seat"
-              >
-                <Minus size={16} strokeWidth={2.5} />
-              </button>
-              <span style={styles.stepperValue} aria-live="polite">
-                {form.seats}
-              </span>
-              <button
-                type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats >= MAX_SEATS && styles.stepperBtnDisabled) }}
-                onClick={() => changeSeats(1)}
-                disabled={form.seats >= MAX_SEATS}
-                aria-label="Add a seat"
-              >
-                <Plus size={16} strokeWidth={2.5} />
-              </button>
-            </div>
-          </div>
-        </div>
+        <NumberStepper
+          label="Available seats"
+          title="Passengers"
+          value={form.seats}
+          onChange={(seats) => setForm((prev) => ({ ...prev, seats }))}
+          min={MIN_SEATS}
+          max={MAX_SEATS}
+          decreaseLabel="Remove a seat"
+          increaseLabel="Add a seat"
+        />
 
         <div className="field">
           <label className="field__label" htmlFor={priceId}>
