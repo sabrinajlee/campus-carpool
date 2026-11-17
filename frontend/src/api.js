@@ -5,6 +5,8 @@ export async function apiGet(path) {
   if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
   return res.json();
 }
+export const getMyTrips = () => apiGet("/api/me/trips");
+
 
 export class ApiError extends Error {
   constructor(status, code, message) {
