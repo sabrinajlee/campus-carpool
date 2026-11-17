@@ -1,7 +1,6 @@
 import { useId, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Minus, Plus } from "lucide-react";
-import { Button, PageHeader, TextInput } from "../components";
+import { Button, NumberStepper, PageHeader, TextInput } from "../components";
 
 // Step 1 of "Post a ride". Sends the trip to step 2 (PickupDropoff.jsx) as
 // navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, pricing_type, price } })
@@ -11,35 +10,18 @@ const MAX_SEATS = 7;
 
 const styles = {
   form: { marginTop: "var(--space-4)" },
-  input: { height: 52, padding: "0 var(--space-4)", borderRadius: "var(--radius-md)" },
   half: { maxWidth: "50%" },
+  // Matches the shared .field__input so these rows line up with the text fields.
   box: {
     display: "flex",
     alignItems: "center",
-    height: 52,
-    padding: "0 var(--space-4)",
+    height: 44,
+    padding: "0 var(--space-3)",
     background: "var(--color-surface)",
     border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-md)",
+    borderRadius: "var(--radius-sm)",
   },
   focused: { outline: "2px solid var(--color-primary)", outlineOffset: -1 },
-  stepperLabel: { fontWeight: 600 },
-  stepperControls: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginLeft: "auto" },
-  stepperBtn: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 28,
-    height: 28,
-    padding: 0,
-    border: "none",
-    borderRadius: "50%",
-    background: "var(--color-primary-soft)",
-    color: "var(--color-primary)",
-    cursor: "pointer",
-  },
-  stepperBtnDisabled: { opacity: 0.4, cursor: "not-allowed" },
-  stepperValue: { minWidth: 20, textAlign: "center", fontSize: 16, fontWeight: 700 },
   priceBox: { gap: "var(--space-1)" },
   priceInput: {
     flex: 1,
@@ -51,12 +33,7 @@ const styles = {
     color: "var(--color-text)",
     outline: "none",
   },
-  submit: {
-    marginTop: "var(--space-2)",
-    minHeight: 52,
-    borderRadius: "var(--radius-md)",
-    fontSize: 16,
-  },
+  submit: { marginTop: "var(--space-2)" },
 };
 
 function todayString() {
@@ -124,13 +101,6 @@ export default function PostRide() {
     };
   }
 
-  function changeSeats(delta) {
-    setForm((prev) => ({
-      ...prev,
-      seats: Math.min(MAX_SEATS, Math.max(MIN_SEATS, prev.seats + delta)),
-    }));
-  }
-
   function handleSubmit(e) {
     e.preventDefault();
     const next = validate(form);
@@ -163,7 +133,6 @@ export default function PostRide() {
           value={form.origin}
           onChange={update("origin")}
           error={errors.origin}
-          style={styles.input}
           autoComplete="off"
         />
         <TextInput
@@ -172,7 +141,6 @@ export default function PostRide() {
           value={form.destination}
           onChange={update("destination")}
           error={errors.destination}
-          style={styles.input}
           autoComplete="off"
         />
         <TextInput
@@ -182,7 +150,6 @@ export default function PostRide() {
           value={form.date}
           onChange={update("date")}
           error={errors.date}
-          style={styles.input}
         />
         <div style={styles.half}>
           <TextInput
@@ -191,7 +158,6 @@ export default function PostRide() {
             value={form.departTime}
             onChange={update("departTime")}
             error={errors.departTime}
-            style={styles.input}
           />
         </div>
         <div style={styles.half}>
@@ -201,39 +167,19 @@ export default function PostRide() {
             value={form.arriveTime}
             onChange={update("arriveTime")}
             error={errors.arriveTime}
-            style={styles.input}
           />
         </div>
 
-        <div className="field">
-          <span className="field__label">Available seats</span>
-          <div style={styles.box}>
-            <span style={styles.stepperLabel}>Passengers</span>
-            <div style={styles.stepperControls}>
-              <button
-                type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats <= MIN_SEATS && styles.stepperBtnDisabled) }}
-                onClick={() => changeSeats(-1)}
-                disabled={form.seats <= MIN_SEATS}
-                aria-label="Remove a seat"
-              >
-                <Minus size={16} strokeWidth={2.5} />
-              </button>
-              <span style={styles.stepperValue} aria-live="polite">
-                {form.seats}
-              </span>
-              <button
-                type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats >= MAX_SEATS && styles.stepperBtnDisabled) }}
-                onClick={() => changeSeats(1)}
-                disabled={form.seats >= MAX_SEATS}
-                aria-label="Add a seat"
-              >
-                <Plus size={16} strokeWidth={2.5} />
-              </button>
-            </div>
-          </div>
-        </div>
+        <NumberStepper
+          label="Available seats"
+          title="Passengers"
+          value={form.seats}
+          onChange={(seats) => setForm((prev) => ({ ...prev, seats }))}
+          min={MIN_SEATS}
+          max={MAX_SEATS}
+          decreaseLabel="Remove a seat"
+          increaseLabel="Add a seat"
+        />
 
         <div className="field">
           <label className="field__label" htmlFor={priceId}>
