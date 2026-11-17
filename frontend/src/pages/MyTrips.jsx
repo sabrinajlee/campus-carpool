@@ -119,7 +119,6 @@ const styles = {
   },
   route: { margin: 0, fontSize: 18, fontWeight: 700 },
   badge: { flexShrink: 0, display: "flex" },
-  neutralBadge: { background: "var(--color-neutral-bg)", color: "var(--color-neutral-text)" },
   meta: { margin: 0, color: "var(--color-text-muted)" },
   link: {
     display: "flex",
@@ -167,21 +166,12 @@ function isPast(trip, tab) {
 }
 
 function DrivingBadge({ trip }) {
-  if (trip.status === "cancelled") return <span className="badge" style={styles.neutralBadge}>Cancelled</span>;
-  if (trip.status === "completed") return <span className="badge" style={styles.neutralBadge}>Completed</span>;
-  if (trip.pending_requests > 0) {
-    return (
-      <span className="badge badge--pending">
-        {trip.pending_requests} {trip.pending_requests === 1 ? "Request" : "Requests"}
-      </span>
-    );
-  }
+  if (trip.status === "cancelled") return <StatusBadge status="cancelled" />;
+  if (trip.status === "completed") return <StatusBadge status="completed" />;
+  if (trip.pending_requests > 0) return <StatusBadge status="requests" count={trip.pending_requests} />;
   const taken = trip.passengers?.length ?? 0;
-  if (trip.status === "full" || taken >= trip.max_seats) {
-    return <span className="badge badge--accepted">Seats Filled</span>;
-  }
-  const left = trip.max_seats - taken;
-  return <span className="badge" style={styles.neutralBadge}>{left} {left === 1 ? "seat" : "seats"} left</span>;
+  if (trip.status === "full" || taken >= trip.max_seats) return <StatusBadge status="full" />;
+  return <StatusBadge status="seats" count={trip.max_seats - taken} />;
 }
 
 function TripCard({ trip, tab }) {
