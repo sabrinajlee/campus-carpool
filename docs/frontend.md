@@ -38,7 +38,7 @@ frontend/src/
 | Pickup & drop-off | `/post/pickup` | `pages/PickupDropoff.jsx` | Yes | |
 | My trips | `/trips` | `pages/MyTrips.jsx` | Yes | |
 | Manage requests | `/trips/:id/requests` | `pages/ManageRequests.jsx` | Yes | |
-| Messages | `/messages` | `pages/Messages.jsx` | Yes | (MVP decision pending) |
+| Messages | `/messages` | `pages/Messages.jsx` | Yes | Later feature. For now this tab is a temporary preview of every shared component. |
 | My profile | `/profile` | `pages/Profile.jsx` | Yes | |
 
 ## Rules to avoid merge conflicts
