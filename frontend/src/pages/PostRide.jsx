@@ -11,16 +11,16 @@ const MAX_SEATS = 7;
 
 const styles = {
   form: { marginTop: "var(--space-4)" },
-  input: { height: 52, padding: "0 var(--space-4)", borderRadius: "var(--radius-md)" },
   half: { maxWidth: "50%" },
+  // Matches the shared .field__input so these rows line up with the text fields.
   box: {
     display: "flex",
     alignItems: "center",
-    height: 52,
-    padding: "0 var(--space-4)",
+    height: 44,
+    padding: "0 var(--space-3)",
     background: "var(--color-surface)",
     border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-md)",
+    borderRadius: "var(--radius-sm)",
   },
   focused: { outline: "2px solid var(--color-primary)", outlineOffset: -1 },
   stepperLabel: { fontWeight: 600 },
@@ -51,12 +51,7 @@ const styles = {
     color: "var(--color-text)",
     outline: "none",
   },
-  submit: {
-    marginTop: "var(--space-2)",
-    minHeight: 52,
-    borderRadius: "var(--radius-md)",
-    fontSize: 16,
-  },
+  submit: { marginTop: "var(--space-2)" },
 };
 
 function todayString() {
@@ -163,7 +158,6 @@ export default function PostRide() {
           value={form.origin}
           onChange={update("origin")}
           error={errors.origin}
-          style={styles.input}
           autoComplete="off"
         />
         <TextInput
@@ -172,7 +166,6 @@ export default function PostRide() {
           value={form.destination}
           onChange={update("destination")}
           error={errors.destination}
-          style={styles.input}
           autoComplete="off"
         />
         <TextInput
@@ -182,7 +175,6 @@ export default function PostRide() {
           value={form.date}
           onChange={update("date")}
           error={errors.date}
-          style={styles.input}
         />
         <div style={styles.half}>
           <TextInput
@@ -191,7 +183,6 @@ export default function PostRide() {
             value={form.departTime}
             onChange={update("departTime")}
             error={errors.departTime}
-            style={styles.input}
           />
         </div>
         <div style={styles.half}>
@@ -201,7 +192,6 @@ export default function PostRide() {
             value={form.arriveTime}
             onChange={update("arriveTime")}
             error={errors.arriveTime}
-            style={styles.input}
           />
         </div>
 
