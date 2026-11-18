@@ -60,5 +60,6 @@ async function apiPatch(path, body) {
   return data;
 }
 
-export const getRide = (id) => apiGet(`/api/rides/${id}`);
+// GET /api/rides/<id> returns { "ride": {...} } (same wrapping as { "user": ... }); this returns the ride itself.
+export const getRide = (id) => apiGet(`/api/rides/${id}`).then((data) => data.ride);
 export const completeRequest = (requestId) => apiPatch(`/api/requests/${requestId}/complete`);

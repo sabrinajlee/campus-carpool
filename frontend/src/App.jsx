@@ -7,6 +7,7 @@ import CheckEmail from "./pages/CheckEmail.jsx";
 import Explore from "./pages/Explore.jsx";
 import RideDetails from "./pages/RideDetails.jsx";
 import RequestSent from "./pages/RequestSent.jsx";
+import RideCancelled from "./pages/RideCancelled.jsx";
 import RideCompleted from "./pages/RideCompleted.jsx";
 import PostRide from "./pages/PostRide.jsx";
 import PickupDropoff from "./pages/PickupDropoff.jsx";
@@ -42,6 +43,7 @@ export default function App() {
       {/* With bottom nav */}
         <Route element={<RequireAuth />}>
             {/* No bottom nav, but needs login */}
+            <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
             <Route path="/rides/:id/complete" element={<RideCompleted />} />
 
             {/* Landing: Travel preferences while onboarding, else Explore */}
