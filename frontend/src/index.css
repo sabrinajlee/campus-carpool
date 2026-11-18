@@ -10,14 +10,14 @@
   --color-border: #e5e7eb;
 
   --color-success-bg: #e6f4ea;
-  --color-success-text: #1e7b3a;
+  --color-success-text: #26b18d;
   --color-warning-bg: #fff4e0;
   --color-warning-text: #b26a00;
   --color-danger-bg: #fdecec;
   --color-danger-text: #b42318;
-  /* Solid fills for buttons (white text passes 4.5:1 contrast) */
-  --color-success: #2e8456;
-  --color-success-hover: #287a4f;
+  /* Solid fills for buttons (white text passes 4.5:1 contrast, except success: about 2.7:1) */
+  --color-success: #26b18d;
+  --color-success-hover: #1f9a7a;
   --color-danger: #c9433c;
   --color-danger-hover: #b93a33;
   --color-neutral-bg: #f0f0f3;
