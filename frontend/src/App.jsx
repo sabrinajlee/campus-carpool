@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -18,6 +18,7 @@ import Profile from "./pages/Profile.jsx";
 import BasicInfo from "./pages/BasicInfo.jsx";
 import CarDetails from "./pages/CarDetails.jsx";
 import TravelPreferences from "./pages/TravelPreferences.jsx";
+import ErrorPage from "./pages/ErrorPage.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
 
@@ -39,6 +40,7 @@ export default function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/rides/:id/requested" element={<RequestSent />} />
+      <Route path="/error" element={<ErrorPage />} />
 
       {/* With bottom nav */}
         <Route element={<RequireAuth />}>
@@ -64,7 +66,8 @@ export default function App() {
           </Route>
         </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Any unknown URL */}
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }
