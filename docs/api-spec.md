@@ -122,19 +122,19 @@ Who is logged in right now. Call this when the app loads to know if the user is 
 | GET | `/me/vehicle` | My vehicle, or `null` | `getMyVehicle` | Car details, Post a ride | 🔒 |
 | PUT | `/me/vehicle` | Create or replace my vehicle | `saveMyVehicle` | Car details | 🔒 |
 | GET | `/me/trips` | My trips: driving + riding | `getMyTrips` | My trips | 🔒 |
-| GET | `/rides?destination=&date=` | Search open rides (hides full, cancelled, past) | `searchRides` | Explore | 🔒 |
+| GET | `/rides?destination=&departs_after=&departs_before=` | Search open rides (hides full, cancelled, past) | `searchRides` | Explore | 🔒 |
 | POST | `/rides` | Post a ride | `postRide` | Pickup & drop-off | 🔒 |
-| GET | `/rides/<id>` | One ride | `getRide` | Ride details, Manage requests, every confirmation screen | 🔒 |
-| PATCH | `/rides/<id>/cancel` | Cancel my ride (driver) | `cancelRide` | Manage requests | 🔒 |
-| POST | `/rides/<id>/requests` | Request a seat | `requestSeat` | Ride details | 🔒 |
-| GET | `/rides/<id>/requests` | Requests on my ride (driver) | `getRideRequests` | Manage requests | 🔒 |
-| PATCH | `/requests/<id>/accept` | Accept a pending request (driver) | `acceptRequest` | Manage requests | 🔒 |
-| PATCH | `/requests/<id>/decline` | Decline a pending request (driver) | `declineRequest` | Manage requests | 🔒 |
-| PATCH | `/requests/<id>/remove` | Take an accepted rider off the ride (driver) | `removeRider` | Manage requests | 🔒 |
-| PATCH | `/requests/<id>/cancel` | Cancel my request (rider) | `cancelRequest` | Ride details | 🔒 |
+| GET | `/rides/<id>` | One ride, as seen by the logged-in user | `getRide` | Ride details, Was your ride completed?, the confirmation screens | 🔒 |
+| PATCH | `/rides/<id>/cancel` | Cancel my ride (driver) | `cancelRide` | Ride details (driver) | 🔒 |
+| POST | `/rides/<id>/requests` | Request a seat | `requestSeat` | Ride details (rider) | 🔒 |
+| GET | `/rides/<id>/requests` | Requests on my ride (driver) | `getRideRequests` | Ride details (driver) | 🔒 |
+| PATCH | `/requests/<id>/accept` | Accept a pending request (driver) | `acceptRequest` | Ride details (driver) | 🔒 |
+| PATCH | `/requests/<id>/decline` | Decline a pending request (driver) | `declineRequest` | Ride details (driver) | 🔒 |
+| PATCH | `/requests/<id>/remove` | Take an accepted rider off the ride (driver) | `removeRider` | Ride details (driver) | 🔒 |
+| PATCH | `/requests/<id>/cancel` | Cancel my request (rider) | `cancelRequest` | Ride details (rider) | 🔒 |
 | PATCH | `/requests/<id>/complete` | Confirm my ride happened (rider) | `completeRequest` | Was your ride completed? | 🔒 |
 
-Errors used by more than one endpoint:
+Error codes are `UPPER_SNAKE_CASE`, like the auth ones (`EMAIL_TAKEN`). Errors used by more than one endpoint:
 
 | Status | Code | When |
 |---|---|---|
@@ -142,6 +142,10 @@ Errors used by more than one endpoint:
 | 403 | `FORBIDDEN` | Not your ride or request (e.g. a rider calling `/accept`) |
 | 404 | `NOT_FOUND` | No ride or request with that id |
 | 409 | `INVALID_STATUS` | The action isn't allowed from the current status (e.g. accepting a declined request) |
+
+### Who sees contact info
+
+Phone, email and the vehicle are only returned once a request is **accepted**. A rider sees the driver's contact and vehicle; the driver sees each accepted rider's contact. Pending, declined, cancelled and removed requests get `null` for these fields on both sides. The server enforces this; hiding them in the UI is not enough.
 
 ## Me (draft)
 
@@ -173,7 +177,7 @@ The frontend puts the returned user in `AuthContext`, which is how onboarding en
 }
 ```
 
-- `id` is always the ride id. `request_id` and `request_status` are my request on that ride.
+- `id` is always the ride id: both tabs open `/rides/<id>`. `request_id` and `request_status` are my request on that ride.
 - `passengers`: names of riders whose request was accepted.
 - `seats_left`: seats still open on the ride (shown on pending requests).
 
@@ -181,27 +185,31 @@ The frontend puts the returned user in `AuthContext`, which is how onboarding en
 
 ### The ride object
 
-Every endpoint that returns a ride uses this shape:
+Every endpoint that returns a ride uses this shape, as seen by the logged-in user:
 
 ```json
 {
-  "id": 4, "origin": "London", "destination": "Toronto",
-  "depart_at": "2026-11-13T21:30:00Z", "arrive_at": "2026-11-13T23:30:00Z",
-  "pickup_point": "Masonville Mall", "dropoff_point": "Union Station",
-  "max_seats": 3, "seats_left": 2, "price_per_seat": 25, "notes": null, "status": "open",
-  "driver": { "id": 2, "name": "Alex Chen" },
-  "my_request": { "id": 15, "status": "pending" }
+  "id": 9, "origin": "London", "destination": "Toronto",
+  "depart_at": "2026-11-13T21:30:00Z", "arrive_at": null,
+  "pickup_point": "Western University, London", "dropoff_point": "Union Station area, Toronto",
+  "max_seats": 3, "seats_left": 3, "price_per_seat": "15.00", "notes": null, "status": "open",
+  "is_own": false,
+  "my_request": { "id": 21, "status": "pending" },
+  "driver": { "id": 10, "name": "Alex Morgan", "phone": null, "email": null },
+  "vehicle": null
 }
 ```
 
+- `price_per_seat` is a string with two decimals (it's `Numeric(8,2)` in the database). Requests may send a number.
 - `arrive_at` is optional (`null` when the driver left it empty).
 - `seats_left` = `max_seats` minus accepted requests.
-- `my_request` is the logged-in user's request on this ride, or `null`. Ride details and Was your ride completed? use its `id` for `/cancel` and `/complete`.
-- The driver's contact details and vehicle are added only for an accepted rider (see `docs/frontend.md`, Developer notes, Privacy).
+- `is_own`: the logged-in user is the driver. Ride details then shows the driver's view and loads `GET /rides/<id>/requests`.
+- `my_request`: the logged-in user's request on this ride, or `null` (seen from Explore). Ride details and Was your ride completed? use its `id` for `/cancel` and `/complete`.
+- `driver.phone`, `driver.email` and `vehicle` (`colour`, `make`, `model`, `plate`, `seats`): only when `my_request.status` is `accepted`, or for the driver themselves. Otherwise `null`.
 
-### GET `/rides?destination=&date=` 🔒
+### GET `/rides?destination=&departs_after=&departs_before=` 🔒
 
-Both filters are optional. `date` is `YYYY-MM-DD`. Returns **200** `{ "rides": [ride, ...] }`, soonest first, without full, cancelled or past rides.
+All filters are optional. `destination` matches part of the name, ignoring case. `departs_after` and `departs_before` are ISO times (Explore sends the start and end of the picked day in the user's time zone). Returns **200** `{ "rides": [ride, ...] }`, soonest first, without full, cancelled or past rides.
 
 ### POST `/rides` 🔒
 
@@ -222,40 +230,46 @@ Both filters are optional. `date` is `YYYY-MM-DD`. Returns **200** `{ "rides": [
 
 ### GET `/rides/<id>` 🔒
 
-**200** `{ "ride": {...} }` · **404** `NOT_FOUND`
+**200** `{ "ride": {...} }` · **404** `NOT_FOUND` (Ride details then goes to `/error`)
 
 ### PATCH `/rides/<id>/cancel` 🔒
 
-Driver only. Sets the ride to `cancelled` and emails every pending and accepted rider. **200** `{ "ride": {...} }`
+Driver only. Sets the ride to `cancelled`, hides it from Explore, and emails every pending and accepted rider. **200** `{ "ride": {...} }`
 
 ## Ride requests (draft)
 
 ### POST `/rides/<id>/requests` 🔒
 
-Asks for one seat. No body. Emails the driver. **201** `{ "request": { "id": 15, "ride_id": 4, "status": "pending" } }`
+Asks for one seat. No body. Creates a `pending` request and emails the driver. **201** `{ "request": { "id": 21, "ride_id": 9, "status": "pending" } }`
 
 | Status | Code | When |
 |---|---|---|
 | 400 | `OWN_RIDE` | The driver asked for a seat on their own ride |
-| 409 | `ALREADY_REQUESTED` | This rider already has a request on this ride |
-| 409 | `RIDE_FULL` | No seats left, or the ride is cancelled or past |
+| 409 | `ALREADY_REQUESTED` | This user already has a request on this ride (Ride details reloads to show it) |
+| 409 | `RIDE_FULL` | No seats left |
+| 409 | `RIDE_CANCELLED` | The driver cancelled the ride |
 
 ### GET `/rides/<id>/requests` 🔒
 
-Driver only. **200**
+Driver of that ride only (**403** `FORBIDDEN` otherwise). Pending and accepted requests, for the Requests and Confirmed Riders lists on Ride details.
+
+**200**
 ```json
-{ "requests": [{ "id": 15, "status": "accepted",
-                 "rider": { "id": 9, "name": "Iris Park", "email": "iris@uwo.ca", "phone": "5195550123" } }] }
+{ "requests": [
+    { "id": 31, "status": "pending",  "rider": { "id": 20, "name": "Iris Lucky",  "phone": null, "email": null } },
+    { "id": 32, "status": "accepted", "rider": { "id": 21, "name": "Alex Morgan", "phone": "(647) 787-9872", "email": "amorgan2@uwo.ca" } }
+] }
 ```
-`email` and `phone` are only included for accepted riders.
+
+`phone` and `email` are only filled in for accepted riders.
 
 ### Status changes
 
-Each returns **200** `{ "request": {...} }`, or **409** `INVALID_STATUS` when the request isn't in the "From" status.
+No body. Each returns **200** `{ "request": {...} }` in the same shape as `GET /rides/<id>/requests` (with the rider's contact once accepted), or **409** `INVALID_STATUS` when the request isn't in the "From" status.
 
 | Endpoint | Who | From | To | Also |
 |---|---|---|---|---|
-| `PATCH /requests/<id>/accept` | Driver | `pending` | `accepted` | Takes a seat (409 `RIDE_FULL` if none left; the last seat makes the ride `full`). Emails both. |
+| `PATCH /requests/<id>/accept` | Driver | `pending` | `accepted` | Takes a seat in one atomic step; the last seat makes the ride `full`. **409** `NO_SEATS_LEFT` if another accept took the last seat (the request stays pending). Emails both. |
 | `PATCH /requests/<id>/decline` | Driver | `pending` | `declined` | Emails the rider. |
 | `PATCH /requests/<id>/remove` | Driver | `accepted` | `removed` | Gives the seat back. Emails the rider. |
 | `PATCH /requests/<id>/cancel` | Rider | `pending`, `accepted` | `cancelled` | Gives the seat back if it was accepted. Emails the driver. |

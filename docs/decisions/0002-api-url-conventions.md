@@ -9,7 +9,7 @@ Pages were written before the rides and requests endpoints existed, and each one
 ## Options
 1. Move everything about the user to `/api/me` (including `GET /auth/me`): one prefix, but changes auth code that is already built and working.
 2. Keep `/api/auth/*` for the session only, and put the user's own data under `/api/me/*`: no change to the built auth code, and each prefix has one job.
-3. Status changes as `PATCH /requests/<id> { "status": ... }`: one endpoint, but permissions, allowed transitions and emails all depend on the value sent.
+3. Status changes as `PATCH /requests/<id> { "status": ... }` (what the first version of Ride details used, with remove sending `declined`): one endpoint, but permissions, allowed transitions and emails all depend on the value sent, and a removed rider can't be told apart from a declined one.
 4. Status changes as `PATCH /<resource>/<id>/<action>`: one endpoint per action, each with its own permission check and email.
 
 ## Decision
@@ -18,7 +18,9 @@ Options 2 and 4. The full list is in `docs/api-spec.md`:
 - `/api/auth/*`: signup, verify, resend, login, logout, and `GET /auth/me` (who is logged in).
 - `/api/me/*`: `PATCH /me`, `GET`/`PUT /me/vehicle`, `GET /me/trips`.
 - `/api/rides` and `/api/requests`: plural nouns. Status changes are `PATCH .../<action>` (`cancel`, `accept`, `decline`, `remove`, `complete`).
+- Removing an accepted rider sets the request to `removed` (not `declined`), so the rider's page and emails can say what happened.
 - `PUT` for a resource the user has exactly one of (the vehicle).
+- Error codes are `UPPER_SNAKE_CASE`, like the auth ones (`RIDE_FULL`, not `ride_full`).
 - Responses wrap the object in a named key (`{ "ride": ... }`), and `api.js` unwraps it.
 - Every frontend call is a function in `frontend/src/api.js`.
 

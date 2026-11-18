@@ -1,15 +1,24 @@
+import { mockGetRide, mockRequestSeat, mockSearchRides } from "./mocks/rides.js";
+
 // Every backend call goes through this file (auth calls are in auth/authApi.js).
-// Endpoints, request bodies and response shapes: docs/api-spec.md.
+// Endpoints, request bodies, response shapes and error codes: docs/api-spec.md.
 //
-// URL conventions (see docs/api-spec.md):
+// URL conventions (docs/decisions/0002-api-url-conventions.md):
 //   /api/auth/*     session and account setup (built)
 //   /api/me/*       the logged-in user's own data (profile, vehicle, trips)
 //   /api/rides      rides, and the requests on a ride
 //   /api/requests   one request; status changes are PATCH /<resource>/<id>/<action>
 // Responses wrap the object in a named key ({ ride }, { rides }, { request }, ...).
 // The functions below unwrap it, so pages get the object itself.
+//
+// Every helper throws ApiError, so pages can check err.status (e.g. 404 → /error)
+// and err.code (e.g. "RIDE_FULL") instead of parsing messages.
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+// VITE_USE_MOCKS=true answers searchRides, getRide and requestSeat from src/mocks/rides.js,
+// so Explore and Ride details can be tried before the backend has /api/rides.
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
 
 export class ApiError extends Error {
   constructor(status, code, message) {
@@ -58,20 +67,24 @@ export const getMyTrips = () => apiGet("/api/me/trips");
 
 // ---------- Rides ----------
 
-// GET /api/rides?destination=&date= → { rides: [...] }
-export const searchRides = ({ destination = "", date = "" } = {}) => {
+// GET /api/rides?destination=&departs_after=&departs_before= → { rides: [...] }
+// departsAfter / departsBefore are ISO times (Explore passes the start and end of the picked day).
+export function searchRides({ destination = "", departsAfter, departsBefore } = {}) {
+  if (USE_MOCKS) return mockSearchRides({ destination, departsAfter, departsBefore });
   const params = new URLSearchParams();
   if (destination) params.set("destination", destination);
-  if (date) params.set("date", date);
+  if (departsAfter) params.set("departs_after", departsAfter);
+  if (departsBefore) params.set("departs_before", departsBefore);
   const query = params.toString();
   return apiGet(`/api/rides${query ? `?${query}` : ""}`).then((data) => data.rides);
-};
+}
 
 // POST /api/rides → 201 { ride }
 export const postRide = (ride) => apiPost("/api/rides", ride).then((data) => data.ride);
 
 // GET /api/rides/<id> → { ride }
-export const getRide = (id) => apiGet(`/api/rides/${id}`).then((data) => data.ride);
+export const getRide = (id) =>
+  USE_MOCKS ? mockGetRide(id) : apiGet(`/api/rides/${id}`).then((data) => data.ride);
 
 // PATCH /api/rides/<id>/cancel → { ride } (driver)
 export const cancelRide = (id) => apiPatch(`/api/rides/${id}/cancel`).then((data) => data.ride);
@@ -79,17 +92,19 @@ export const cancelRide = (id) => apiPatch(`/api/rides/${id}/cancel`).then((data
 // ---------- Ride requests ----------
 
 // POST /api/rides/<id>/requests → 201 { request } (rider asks for one seat)
-export const requestSeat = (rideId) => apiPost(`/api/rides/${rideId}/requests`).then((data) => data.request);
+// Errors: RIDE_FULL, RIDE_CANCELLED, ALREADY_REQUESTED, OWN_RIDE
+export const requestSeat = (rideId) =>
+  USE_MOCKS ? mockRequestSeat(rideId) : apiPost(`/api/rides/${rideId}/requests`).then((data) => data.request);
 
 // GET /api/rides/<id>/requests → { requests: [...] } (driver of that ride only)
 export const getRideRequests = (rideId) => apiGet(`/api/rides/${rideId}/requests`).then((data) => data.requests);
 
-// Status changes. Each one → { request }.
+// Status changes. Each one → { request }, or 409 INVALID_STATUS from the wrong status.
 const requestAction = (action) => (requestId) =>
   apiPatch(`/api/requests/${requestId}/${action}`).then((data) => data.request);
 
-export const acceptRequest = requestAction("accept"); // driver
-export const declineRequest = requestAction("decline"); // driver
-export const removeRider = requestAction("remove"); // driver, an accepted rider
-export const cancelRequest = requestAction("cancel"); // rider
-export const completeRequest = requestAction("complete"); // rider, after the trip
+export const acceptRequest = requestAction("accept"); // driver: pending → accepted (409 NO_SEATS_LEFT)
+export const declineRequest = requestAction("decline"); // driver: pending → declined
+export const removeRider = requestAction("remove"); // driver: accepted → removed
+export const cancelRequest = requestAction("cancel"); // rider: pending or accepted → cancelled
+export const completeRequest = requestAction("complete"); // rider: accepted, after departure → completed

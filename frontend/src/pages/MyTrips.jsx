@@ -41,12 +41,13 @@ function daysFromNow(days, hour, minute = 0) {
 const SAMPLE_TRIPS = {
   driving: [
     {
-      id: 1, origin: "London", destination: "Toronto", depart_at: daysFromNow(3, 16, 30),
-      status: "open", max_seats: 3, pending_requests: 1, passengers: [],
+      // Ids 5 and 10 match the driver's sample rides in RideDetails.jsx, so these cards open them.
+      id: 5, origin: "London", destination: "Toronto", depart_at: daysFromNow(3, 16, 30),
+      status: "open", max_seats: 3, pending_requests: 1, passengers: ["Alex", "Jordan"],
     },
     {
-      id: 2, origin: "London", destination: "Kitchener", depart_at: daysFromNow(4, 9),
-      status: "full", max_seats: 3, pending_requests: 0, passengers: ["Allen", "Bobby", "Carmen"],
+      id: 10, origin: "London", destination: "Kitchener", depart_at: daysFromNow(4, 9),
+      status: "full", max_seats: 2, pending_requests: 0, passengers: ["Allen", "Bobby"],
     },
     {
       id: 3, origin: "London", destination: "Ottawa", depart_at: daysFromNow(10, 7),
@@ -112,11 +113,10 @@ function needsCompletion(trip) {
   return trip.request_status === "accepted" && trip.status !== "cancelled" && new Date(trip.depart_at) < new Date();
 }
 
-// Drivers go to their request list (:id is the ride id); riders go to the ride itself,
-// or to "Was your ride completed?" for a past trip.
+// Every card opens Ride details (drivers get the driver's view of their own ride there),
+// except a past accepted riding trip, which asks "Was your ride completed?" first.
 function tripLink(trip, tab) {
-  if (tab === "driving") return `/trips/${trip.id}/requests`;
-  return needsCompletion(trip) ? `/rides/${trip.id}/complete` : `/rides/${trip.id}`;
+  return tab === "riding" && needsCompletion(trip) ? `/rides/${trip.id}/complete` : `/rides/${trip.id}`;
 }
 
 function TripCard({ trip, tab }) {

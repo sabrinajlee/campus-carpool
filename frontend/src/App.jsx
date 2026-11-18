@@ -13,7 +13,6 @@ import RideCompleted from "./pages/RideCompleted.jsx";
 import PostRide from "./pages/PostRide.jsx";
 import PickupDropoff from "./pages/PickupDropoff.jsx";
 import MyTrips from "./pages/MyTrips.jsx";
-import ManageRequests from "./pages/ManageRequests.jsx";
 import Messages from "./pages/Messages.jsx";
 import Profile from "./pages/Profile.jsx";
 import BasicInfo from "./pages/BasicInfo.jsx";
@@ -57,12 +56,11 @@ export default function App() {
 
         {/* With bottom nav */}
         <Route element={<AppLayout />}>
+          {/* Ride details: the rider's view, or the driver's view of their own ride (requests, confirmed riders) */}
           <Route path="/rides/:id" element={<RideDetails />} />
           <Route path="/post" element={<PostRide />} />
           <Route path="/post/pickup" element={<PickupDropoff />} />
           <Route path="/trips" element={<MyTrips />} />
-          {/* :id is the ride id (the driver's own ride) */}
-          <Route path="/trips/:id/requests" element={<ManageRequests />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/basic-info" element={<BasicInfo />} />
