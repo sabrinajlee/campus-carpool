@@ -1,0 +1,122 @@
+/* Page-only styles for TravelPreferences.jsx.
+   Page CSS loads before index.css, so overrides of shared component classes
+   (.page, .page-header) use a compound selector to win. */
+
+/* Fill the screen so Continue sits at the bottom, like Car details. */
+.travel-prefs-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.travel-prefs-body {
+  flex: 1;
+}
+
+.travel-prefs-actions {
+  padding-top: var(--space-6);
+}
+
+/* ===== Selectable cards ===== */
+.travel-prefs-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.travel-prefs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-height: 156px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.travel-prefs-card--selected {
+  border-color: var(--color-primary);
+}
+
+.travel-prefs-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.travel-prefs-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: var(--space-3);
+}
+
+.travel-prefs-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.travel-prefs-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-surface);
+}
+
+.travel-prefs-card--selected .travel-prefs-check {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.travel-prefs-card-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.travel-prefs-card-text {
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* ===== Info note (same look as Car details' preview box) ===== */
+.travel-prefs-note {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+}
+
+.travel-prefs-note-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.travel-prefs-note-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}

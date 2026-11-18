@@ -31,13 +31,13 @@ Use these page titles everywhere (Figma frames, tickets, branch names) so everyo
 
 | Page | Route | File | Bottom nav | What it has and what it's for | Shared components | Owner |
 |---|---|---|---|---|---|---|
-| Login | `/login` | `pages/Login.jsx` | No | Western email, password, Log in, link to Sign up. Shows the verify-link result (`?verify=success\|expired\|invalid`) and an "unverified" error with Resend. Goes to the page the user wanted, or `/welcome` if they haven't onboarded, else Explore. | TextInput, Button, Alert, *Logo*, *InlineError* | Ellie |
+| Login | `/login` | `pages/Login.jsx` | No | Western email, password, Log in, link to Sign up. Shows the verify-link result (`?verify=success\|expired\|invalid`) and an "unverified" error with Resend. Goes to the page the user wanted, or `/` (Travel preferences while onboarding, else Explore). | TextInput, Button, Alert, *Logo*, *InlineError* | Ellie |
 | Sign up | `/signup` | `pages/SignUp.jsx` | No | Name, Western email, password, confirm password, Create account, link to Log in. Creates the account and goes to Check your email. | TextInput, Button, *Logo* | Ellie |
 | Check your email | `/check-email` | `pages/CheckEmail.jsx` | No | Masked email ("j\*\*\*@uwo.ca"), Resend (60s cooldown, not built yet), "Wrong email? Go back" to `/signup`, Log in. | Button | Ellie |
 | Forgot password | `/forgot-password` | `pages/ForgotPassword.jsx` | No | Email field and Send link. After sending, the form swaps for a "check your email" message, the same whether or not the account exists. Linked from Login. | TextInput, Button | |
 | Reset password | `/reset-password?token=...` | `pages/ResetPassword.jsx` | No | Opened from the emailed link. New password and confirm, then `/login` with a success message. An expired or used token shows a notice with a link to `/forgot-password`. | TextInput, Button, *InlineError* | |
-| Travel preferences | `/welcome` | `pages/TravelPreferences.jsx` | No | First onboarding screen. Two cards, "I need rides" and "I can drive". The choice isn't saved: it only decides whether Car details comes next. | PageHeader, Button | |
-| Find a ride (Explore) | `/` | `pages/Explore.jsx` | Yes | Home page. From/To search, date and time chips, Filters sheet, list of open rides. Full rides are hidden. Tapping a card opens Ride details. Loading, empty ("No rides match") and error states. | PageHeader, RouteTimeline, DateChip, Avatar, *FilterSheet*, *EmptyState*, *InlineError*, *Spinner* | |
+| Travel preferences | `/` while onboarding | `pages/TravelPreferences.jsx` | No | The landing page while `user.phone` is `null`: `/` shows it instead of Explore (chosen in `App.jsx`), so it has no URL of its own. First onboarding screen. Two cards, "I need rides" and "I can drive". The choice isn't saved: it only decides whether Car details comes next. | PageHeader, Button | |
+| Find a ride (Explore) | `/` | `pages/Explore.jsx` | Yes | Home page once onboarding is done (before that, `/` shows Travel preferences). From/To search, date and time chips, Filters sheet, list of open rides. Full rides are hidden. Tapping a card opens Ride details. Loading, empty ("No rides match") and error states. | PageHeader, RouteTimeline, DateChip, Avatar, *FilterSheet*, *EmptyState*, *InlineError*, *Spinner* | |
 | Ride details | `/rides/:id` | `pages/RideDetails.jsx` | Yes | The rider's view of one ride, in every state: not requested (Request a seat), full, pending, accepted (driver contact and vehicle), and declined, cancelled or past (read-only). Cancel ride opens the confirm cancel dialog. See [Ride details by situation](#ride-details-by-situation). | PageHeader (showBack), StatusBadge, Button, RouteHeader, PersonRow, RouteTimeline, PriceBanner, VehicleCard, *ConfirmDialog* | |
 | Request sent | `/rides/:id/requested` | `pages/RequestSent.jsx` | No | Terminal confirmation: "Request sent!", summary with "Request pending", My trips and Back to explore. Back must not resubmit. | Button, StatusBadge, ConfirmationLayout, TripSummaryCard | |
 | Ride cancelled | `/rides/:id/cancelled` | `pages/RideCancelled.jsx` | No | Terminal confirmation after a cancel. Copy depends on who cancelled: rider sees "Driver will be notified", driver sees "Riders will be notified". Pass who cancelled in `navigate` state. My trips and Back to explore. | Button, ConfirmationLayout, TripSummaryCard | |
@@ -83,14 +83,15 @@ How users move between pages.
 
 ### Onboarding
 
-New users go through: `/signup` → `/check-email` → (email link) → `/login?verify=success` → `/welcome` → `/profile/vehicle` (only if "I can drive") → `/profile/basic-info` → `/`.
+New users go through: `/signup` → `/check-email` → (email link) → `/login?verify=success` → `/` (Travel preferences) → `/profile/vehicle` (only if "I can drive") → `/profile/basic-info` → `/`.
 
 There are no separate onboarding routes. Onboarding reuses the profile pages, and the app knows a user is onboarding because **`user.phone` is `null`** in `/auth/me` (the name is set at sign up, and phone is set on the last onboarding step). While `user.phone` is `null`:
 
-- Login sends the user to `/welcome` instead of Explore.
+- `/` shows Travel preferences instead of Explore. Login doesn't need a special case: it sends the user to `/` as usual.
 - `AppLayout` hides the bottom nav.
 - Car details shows **Skip for now**, and Save or Skip goes to `/profile/basic-info`.
 - Basic information shows **Continue** (not Save Changes), and goes to `/`.
+- After saving the phone number, Basic information must update `user` in `AuthContext` before going to `/`. Otherwise `user.phone` is still `null` and `/` shows Travel preferences again.
 
 Car details is also opened from two other places. Pass where to go next as `?next=`:
 
