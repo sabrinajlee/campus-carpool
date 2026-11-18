@@ -15,7 +15,18 @@ import Messages from "./pages/Messages.jsx";
 import Profile from "./pages/Profile.jsx";
 import BasicInfo from "./pages/BasicInfo.jsx";
 import CarDetails from "./pages/CarDetails.jsx";
+import TravelPreferences from "./pages/TravelPreferences.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
+import { useAuth } from "./auth/AuthContext.jsx";
+
+// "/" is the landing page. While the user is onboarding (user.phone is null) it shows
+// Travel preferences, with no bottom nav. Otherwise it's Explore inside AppLayout.
+function Landing() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user && !user.phone) return <TravelPreferences />;
+  return <AppLayout />;
+}
 
 // All routes live here. Add new pages in a separate small PR to avoid conflicts.
 export default function App() {
@@ -29,8 +40,12 @@ export default function App() {
 
       {/* With bottom nav */}
         <Route element={<RequireAuth />}>
+            {/* Landing: Travel preferences while onboarding, else Explore */}
+            <Route path="/" element={<Landing />}>
+              <Route index element={<Explore />} />
+            </Route>
+
             <Route element={<AppLayout />}>
-            <Route path="/" element={<Explore />} />
             <Route path="/rides/:id" element={<RideDetails />} />
             <Route path="/post" element={<PostRide />} />
             <Route path="/post/pickup" element={<PickupDropoff />} />
