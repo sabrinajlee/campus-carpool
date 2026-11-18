@@ -1,0 +1,64 @@
+/* Page-only styles for Messages.jsx (temporary component preview). */
+
+.messages-notice {
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.messages-notice-title {
+  margin: 0 0 var(--space-1);
+  font-weight: 700;
+}
+
+.messages-notice-text {
+  margin: 0;
+  font-size: 13px;
+}
+
+.messages-section {
+  margin-bottom: var(--space-6);
+}
+
+.messages-section-title {
+  margin-bottom: var(--space-1);
+}
+
+.messages-section-note {
+  margin: 0 0 var(--space-3);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.messages-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.messages-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.messages-code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.messages-frame {
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.messages-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  color: var(--color-text-muted);
+}

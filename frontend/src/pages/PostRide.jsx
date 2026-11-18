@@ -2,62 +2,13 @@ import { useId, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Minus, Plus } from "lucide-react";
 import { Button, PageHeader, TextInput } from "../components";
+import "./PostRide.css";
 
 // Step 1 of "Post a ride". Sends the trip to step 2 (PickupDropoff.jsx) as
 // navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, pricing_type, price } })
 
 const MIN_SEATS = 1;
 const MAX_SEATS = 7;
-
-const styles = {
-  form: { marginTop: "var(--space-4)" },
-  input: { height: 52, padding: "0 var(--space-4)", borderRadius: "var(--radius-md)" },
-  half: { maxWidth: "50%" },
-  box: {
-    display: "flex",
-    alignItems: "center",
-    height: 52,
-    padding: "0 var(--space-4)",
-    background: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-md)",
-  },
-  focused: { outline: "2px solid var(--color-primary)", outlineOffset: -1 },
-  stepperLabel: { fontWeight: 600 },
-  stepperControls: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginLeft: "auto" },
-  stepperBtn: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 28,
-    height: 28,
-    padding: 0,
-    border: "none",
-    borderRadius: "50%",
-    background: "var(--color-primary-soft)",
-    color: "var(--color-primary)",
-    cursor: "pointer",
-  },
-  stepperBtnDisabled: { opacity: 0.4, cursor: "not-allowed" },
-  stepperValue: { minWidth: 20, textAlign: "center", fontSize: 16, fontWeight: 700 },
-  priceBox: { gap: "var(--space-1)" },
-  priceInput: {
-    flex: 1,
-    minWidth: 0,
-    height: "100%",
-    border: "none",
-    background: "transparent",
-    font: "inherit",
-    color: "var(--color-text)",
-    outline: "none",
-  },
-  submit: {
-    marginTop: "var(--space-2)",
-    minHeight: 52,
-    borderRadius: "var(--radius-md)",
-    fontSize: 16,
-  },
-};
 
 function todayString() {
   const now = new Date();
@@ -156,14 +107,14 @@ export default function PostRide() {
     <main className="page">
       <PageHeader title="Post a ride" subtitle="Share a trip you're already planning." />
 
-      <form style={styles.form} onSubmit={handleSubmit} noValidate>
+      <form className="post-ride-form" onSubmit={handleSubmit} noValidate>
         <TextInput
           label="Leaving from"
           placeholder="London, ON"
           value={form.origin}
           onChange={update("origin")}
           error={errors.origin}
-          style={styles.input}
+          className="post-ride-input"
           autoComplete="off"
         />
         <TextInput
@@ -172,7 +123,7 @@ export default function PostRide() {
           value={form.destination}
           onChange={update("destination")}
           error={errors.destination}
-          style={styles.input}
+          className="post-ride-input"
           autoComplete="off"
         />
         <TextInput
@@ -182,49 +133,49 @@ export default function PostRide() {
           value={form.date}
           onChange={update("date")}
           error={errors.date}
-          style={styles.input}
+          className="post-ride-input"
         />
-        <div style={styles.half}>
+        <div className="post-ride-half">
           <TextInput
             label="Departure time"
             type="time"
             value={form.departTime}
             onChange={update("departTime")}
             error={errors.departTime}
-            style={styles.input}
+            className="post-ride-input"
           />
         </div>
-        <div style={styles.half}>
+        <div className="post-ride-half">
           <TextInput
             label="Estimated arrival time"
             type="time"
             value={form.arriveTime}
             onChange={update("arriveTime")}
             error={errors.arriveTime}
-            style={styles.input}
+            className="post-ride-input"
           />
         </div>
 
         <div className="field">
           <span className="field__label">Available seats</span>
-          <div style={styles.box}>
-            <span style={styles.stepperLabel}>Passengers</span>
-            <div style={styles.stepperControls}>
+          <div className="post-ride-box">
+            <span className="post-ride-stepper-label">Passengers</span>
+            <div className="post-ride-stepper-controls">
               <button
                 type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats <= MIN_SEATS && styles.stepperBtnDisabled) }}
+                className="post-ride-stepper-btn"
                 onClick={() => changeSeats(-1)}
                 disabled={form.seats <= MIN_SEATS}
                 aria-label="Remove a seat"
               >
                 <Minus size={16} strokeWidth={2.5} />
               </button>
-              <span style={styles.stepperValue} aria-live="polite">
+              <span className="post-ride-stepper-value" aria-live="polite">
                 {form.seats}
               </span>
               <button
                 type="button"
-                style={{ ...styles.stepperBtn, ...(form.seats >= MAX_SEATS && styles.stepperBtnDisabled) }}
+                className="post-ride-stepper-btn"
                 onClick={() => changeSeats(1)}
                 disabled={form.seats >= MAX_SEATS}
                 aria-label="Add a seat"
@@ -239,11 +190,11 @@ export default function PostRide() {
           <label className="field__label" htmlFor={priceId}>
             Price per seat
           </label>
-          <div style={{ ...styles.box, ...styles.priceBox, ...(priceFocused && styles.focused) }}>
+          <div className={`post-ride-box post-ride-price-box${priceFocused ? " post-ride-box--focused" : ""}`}>
             <span>$</span>
             <input
               id={priceId}
-              style={styles.priceInput}
+              className="post-ride-price-input"
               type="text"
               inputMode="decimal"
               placeholder="XX"
@@ -257,7 +208,7 @@ export default function PostRide() {
           {errors.price && <span className="field__error">{errors.price}</span>}
         </div>
 
-        <Button type="submit" fullWidth style={styles.submit}>
+        <Button type="submit" fullWidth className="post-ride-submit">
           Continue to pickup details
         </Button>
       </form>

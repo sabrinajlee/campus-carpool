@@ -1,0 +1,70 @@
+/* Page-only styles for PickupDropoff.jsx.
+   Page CSS loads before index.css, so overrides of shared component classes
+   (.card, .btn) use a compound selector to win. */
+
+.pickup-details {
+  margin-top: var(--space-5);
+}
+
+.card.pickup-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+}
+
+.pickup-summary-title {
+  color: var(--color-primary);
+}
+
+.pickup-route {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pickup-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pickup-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+}
+
+.pickup-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.pickup-error {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  font-size: 12px;
+}
+
+.btn.pickup-submit {
+  margin-top: var(--space-6);
+}
+
+.card.pickup-missing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pickup-missing-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}

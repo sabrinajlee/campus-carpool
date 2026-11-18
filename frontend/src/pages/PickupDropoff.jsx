@@ -1,53 +1,12 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, PageHeader, TextInput } from "../components";
+import "./PickupDropoff.css";
 
 // Step 2 of "Post a ride". Step 1 (PostRide.jsx) sends its data with
 // navigate("/post/pickup", { state: { origin, destination, depart_at, max_seats, pricing_type, price } })
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-const styles = {
-  details: { marginTop: "var(--space-5)" },
-  summary: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--space-2)",
-    marginTop: "var(--space-5)",
-    padding: "var(--space-5)",
-  },
-  summaryTitle: { color: "var(--color-primary)" },
-  route: { margin: 0, fontSize: 16, fontWeight: 700 },
-  bottom: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: "var(--space-3)",
-  },
-  meta: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--space-1)",
-    color: "var(--color-text-muted)",
-  },
-  price: {
-    fontSize: 20,
-    fontWeight: 700,
-    color: "var(--color-primary)",
-    whiteSpace: "nowrap",
-  },
-  error: {
-    margin: "var(--space-4) 0 0",
-    padding: "var(--space-3)",
-    borderRadius: "var(--radius-sm)",
-    background: "var(--color-danger-bg)",
-    color: "var(--color-danger-text)",
-    fontSize: 12,
-  },
-  submit: { marginTop: "var(--space-6)" },
-  missing: { display: "flex", flexDirection: "column", gap: "var(--space-3)" },
-  missingText: { margin: 0, color: "var(--color-text-muted)" },
-};
 
 function formatDepart(dateString) {
   const date = new Date(dateString);
@@ -87,8 +46,8 @@ export default function PickupDropoff() {
     return (
       <main className="page">
         <PageHeader title="Pickup & drop-off" subtitle="Last step before your trip gets posted." showBack />
-        <Card style={styles.missing}>
-          <p style={styles.missingText}>Start with your trip details first.</p>
+        <Card className="pickup-missing">
+          <p className="pickup-missing-text">Start with your trip details first.</p>
           <Button fullWidth onClick={() => navigate("/post")}>
             Go to Post a ride
           </Button>
@@ -158,7 +117,7 @@ export default function PickupDropoff() {
           error={errors.dropoff}
           maxLength={200}
         />
-        <div style={styles.details}>
+        <div className="pickup-details">
           <TextInput
             label="Other trip details"
             placeholder="luggage space, flexibility, stops..."
@@ -168,29 +127,29 @@ export default function PickupDropoff() {
           />
         </div>
 
-        <Card soft style={styles.summary}>
-          <h2 style={styles.summaryTitle}>Trip summary</h2>
-          <p style={styles.route}>
+        <Card soft className="pickup-summary">
+          <h2 className="pickup-summary-title">Trip summary</h2>
+          <p className="pickup-route">
             {trip.origin} → {trip.destination}
           </p>
-          <div style={styles.bottom}>
-            <div style={styles.meta}>
+          <div className="pickup-bottom">
+            <div className="pickup-meta">
               <span>{formatDepart(trip.depart_at)}</span>
               <span>
                 {seats} {seats === 1 ? "seat" : "seats"} available
               </span>
             </div>
-            <span style={styles.price}>{formatPrice(trip)}</span>
+            <span className="pickup-price">{formatPrice(trip)}</span>
           </div>
         </Card>
 
         {submitError && (
-          <p style={styles.error} role="alert">
+          <p className="pickup-error" role="alert">
             {submitError}
           </p>
         )}
 
-        <Button type="submit" fullWidth disabled={submitting} style={styles.submit}>
+        <Button type="submit" fullWidth disabled={submitting} className="pickup-submit">
           {submitting ? "Posting…" : "Post ride"}
         </Button>
       </form>

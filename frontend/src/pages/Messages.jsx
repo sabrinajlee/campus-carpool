@@ -1,4 +1,5 @@
 import { Button, Card, PageHeader, StatusBadge, TextInput } from "../components";
+import "./Messages.css";
 
 // COMPONENT PREVIEW (temporary)
 // Messages (P34) is a later feature, so this tab shows every shared component
@@ -20,36 +21,11 @@ const PLANNED = [
   "ConfirmationLayout",
 ];
 
-const styles = {
-  notice: {
-    marginBottom: "var(--space-5)",
-    padding: "var(--space-4)",
-    borderRadius: "var(--radius-md)",
-    background: "var(--color-warning-bg)",
-    color: "var(--color-warning-text)",
-  },
-  noticeTitle: { margin: "0 0 var(--space-1)", fontWeight: 700 },
-  noticeText: { margin: 0, fontSize: 13 },
-  section: { marginBottom: "var(--space-6)" },
-  sectionTitle: { marginBottom: "var(--space-1)" },
-  sectionNote: { margin: "0 0 var(--space-3)", fontSize: 12, color: "var(--color-text-muted)" },
-  stack: { display: "flex", flexDirection: "column", gap: "var(--space-3)" },
-  row: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-2)" },
-  item: { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--space-1)" },
-  code: { fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11, color: "var(--color-text-muted)" },
-  frame: {
-    padding: "var(--space-3)",
-    border: "1px dashed var(--color-border)",
-    borderRadius: "var(--radius-md)",
-  },
-  list: { margin: 0, paddingLeft: "var(--space-5)", color: "var(--color-text-muted)" },
-};
-
 function Section({ title, note, children }) {
   return (
-    <section style={styles.section}>
-      <h2 style={styles.sectionTitle}>{title}</h2>
-      {note && <p style={styles.sectionNote}>{note}</p>}
+    <section className="messages-section">
+      <h2 className="messages-section-title">{title}</h2>
+      {note && <p className="messages-section-note">{note}</p>}
       {children}
     </section>
   );
@@ -58,9 +34,9 @@ function Section({ title, note, children }) {
 // One example with the code that produces it underneath.
 function Example({ code, children }) {
   return (
-    <div style={styles.item}>
+    <div className="messages-item">
       {children}
-      <code style={styles.code}>{code}</code>
+      <code className="messages-code">{code}</code>
     </div>
   );
 }
@@ -84,9 +60,9 @@ export default function Messages() {
     <main className="page">
       <PageHeader title="Component preview" subtitle="Shared components and their states." />
 
-      <div style={styles.notice} role="note">
-        <p style={styles.noticeTitle}>This is not the Messages page.</p>
-        <p style={styles.noticeText}>
+      <div className="messages-notice" role="note">
+        <p className="messages-notice-title">This is not the Messages page.</p>
+        <p className="messages-notice-text">
           Messages is a later feature, so this tab is a temporary developer preview of every shared
           component in <code>src/components</code>. Use these in pages instead of building your own. It
           will be replaced when Messages is built.
@@ -94,7 +70,7 @@ export default function Messages() {
       </div>
 
       <Section title="Button" note="variant: primary (default), secondary, danger, success">
-        <div style={styles.stack}>
+        <div className="messages-stack">
           <Example code="<Button>">
             <Button>Request a seat</Button>
           </Example>
@@ -117,7 +93,7 @@ export default function Messages() {
       </Section>
 
       <Section title="StatusBadge" note="Labels and colours come from the status, never from the page.">
-        <div style={styles.stack}>
+        <div className="messages-stack">
           {BADGES.map(({ props, code }) => (
             <Example key={code} code={code}>
               <StatusBadge {...props} />
@@ -135,7 +111,7 @@ export default function Messages() {
       </Section>
 
       <Section title="Card" note="soft: light purple, for summaries and price panels">
-        <div style={styles.stack}>
+        <div className="messages-stack">
           <Example code="<Card>">
             <Card>Plain card</Card>
           </Example>
@@ -146,7 +122,7 @@ export default function Messages() {
       </Section>
 
       <Section title="PageHeader" note="title, subtitle, showBack">
-        <div style={{ ...styles.stack, ...styles.frame }}>
+        <div className="messages-stack messages-frame">
           <PageHeader title="My trips" subtitle="Keep track of rides you request or offer." />
           <PageHeader title="Ride details" showBack />
         </div>
@@ -155,7 +131,7 @@ export default function Messages() {
       <Section title="BottomNav" note="Shown at the bottom of this page. Pages inside AppLayout get it automatically." />
 
       <Section title="Planned (not built yet)" note="Don't build these inside a page. They're coming as shared components.">
-        <ul style={styles.list}>
+        <ul className="messages-list">
           {PLANNED.map((name) => (
             <li key={name}>{name}</li>
           ))}
