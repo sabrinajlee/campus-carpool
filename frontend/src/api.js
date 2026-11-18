@@ -6,6 +6,8 @@ export async function apiGet(path) {
   return res.json();
 }
 export const getMyTrips = () => apiGet("/api/me/trips");
+// Ride details. Draft endpoint in docs/api-spec.md, not in the backend yet.
+export const getRide = (id) => apiGet(`/api/rides/${id}`);
 
 
 export class ApiError extends Error {
