@@ -13,6 +13,7 @@ import MyTrips from "./pages/MyTrips.jsx";
 import ManageRequests from "./pages/ManageRequests.jsx";
 import Messages from "./pages/Messages.jsx";
 import Profile from "./pages/Profile.jsx";
+import BasicInfo from "./pages/BasicInfo.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
 
 // All routes live here. Add new pages in a separate small PR to avoid conflicts.
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/trips/:id/requests" element={<ManageRequests />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/basic-info" element={<BasicInfo />} />
           </Route>
         </Route>
 
