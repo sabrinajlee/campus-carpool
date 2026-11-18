@@ -190,13 +190,16 @@ export default function Messages() {
         </div>
       </Section>
 
-      <Section title="PersonRow" note="name, action (right side), note (grey footer), contact (green footer, accepted only)">
+      <Section
+        title="PersonRow"
+        note="name, action (right side: the page passes its own buttons, shown here as a dashed placeholder), note (grey footer), contact (green footer, accepted only)"
+      >
         <div className="messages-stack">
           <PersonRow name="Alex Morgan" note="Contact info shared on acceptance" />
           <PersonRow name="Alex Morgan" contact="(647) 765-9872 or amorgan@uwo.ca" />
           <PersonRow
             name="Iris Lucky"
-            action={<span className="messages-code">action</span>}
+            action={<span className="messages-placeholder">Accept / decline buttons (built by Manage requests)</span>}
             note="Contact info shared on acceptance"
           />
         </div>
