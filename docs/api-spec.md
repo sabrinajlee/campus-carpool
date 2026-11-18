@@ -109,6 +109,84 @@ Who is logged in right now. Call this when the app loads to know if the user is 
 |---|---|---|---|
 | POST | `/rides/<id>/requests` | Request a seat | 🔒 |
 | GET | `/rides/<id>/requests` | Requests on my ride (driver) | 🔒 |
-| PATCH | `/requests/<id>` | Accept / decline (driver) | 🔒 |
+| PATCH | `/requests/<id>` | Accept / decline a request, or remove a confirmed rider (driver) | 🔒 |
 | PATCH | `/requests/<id>/cancel` | Cancel my request (rider) | 🔒 |
 | GET | `/me/trips` | My trips: driving + riding | 🔒 |
+
+### Who sees contact info
+
+Phone, email and the vehicle are only returned once a request is **accepted**. A rider sees the driver's contact and vehicle; the driver sees each accepted rider's contact. Pending, declined and cancelled requests get `null` for these fields on both sides. The server enforces this; hiding them in the UI is not enough.
+
+### GET `/rides/<id>` 🔒
+
+One ride, as seen by the logged-in user. Used by Ride details for every viewer.
+
+**200**
+```json
+{ "ride": {
+    "id": 9, "origin": "London", "destination": "Toronto",
+    "pickup_point": "Western University, London", "dropoff_point": "Union Station area, Toronto",
+    "depart_at": "2026-11-13T21:30:00Z", "seats_left": 3, "price_per_seat": "15.00", "status": "open",
+    "is_own": false,
+    "my_request": { "id": 21, "status": "pending" },
+    "driver": { "id": 10, "name": "Alex Morgan", "phone": null, "email": null },
+    "vehicle": null
+} }
+```
+
+- `is_own`: the logged-in user is the driver.
+- `my_request`: the user's own request on this ride, or `null` (seen from Explore).
+- `driver.phone`, `driver.email` and `vehicle` (`colour`, `make`, `model`, `plate`, `seats`): only when `my_request.status` is `accepted`, or for the driver themselves.
+
+**404** the ride doesn't exist.
+
+### GET `/rides/<id>/requests` 🔒
+
+The driver's own ride only. Pending and accepted requests, for the Requests and Confirmed Riders lists.
+
+**200**
+```json
+{ "requests": [
+    { "id": 31, "status": "pending",  "rider": { "id": 20, "name": "Iris Lucky",  "phone": null, "email": null } },
+    { "id": 32, "status": "accepted", "rider": { "id": 21, "name": "Alex Morgan", "phone": "(647) 787-9872", "email": "amorgan2@uwo.ca" } }
+] }
+```
+
+**403** not the driver of this ride.
+
+### POST `/rides/<id>/requests` 🔒
+
+Request one seat. Creates a `pending` request and emails the driver.
+
+**201** `{ "request": { "id": 21, "ride_id": 9, "status": "pending" } }`
+
+| Status | Code | When |
+|---|---|---|
+| 409 | `ride_full` | no seats left |
+| 409 | `ride_cancelled` | the driver cancelled the ride |
+| 409 | `already_requested` | the user already has a request on this ride |
+
+### PATCH `/requests/<id>` 🔒
+
+The driver accepts or declines a pending request, or removes a confirmed rider (sets an accepted request to `declined`). Accepting lowers `seats_left` in one atomic step; removing gives the seat back. The rider is emailed.
+
+**Request** `{ "status": "accepted" }` or `{ "status": "declined" }`
+
+**200** `{ "request": { ...same shape as in GET /rides/<id>/requests... } }` (with the rider's contact once accepted)
+
+| Status | Code | When |
+|---|---|---|
+| 403 | | not the driver of this ride |
+| 409 | `no_seats_left` | another accept took the last seat; the request stays pending |
+
+### PATCH `/requests/<id>/cancel` 🔒
+
+The rider cancels their own pending or accepted request. An accepted seat goes back on the ride, and the driver is emailed.
+
+**200** `{ "request": { "id": 21, "status": "cancelled" } }`
+
+### PATCH `/rides/<id>/cancel` 🔒
+
+The driver cancels their own ride. It's hidden from Explore, and every pending and accepted rider is emailed.
+
+**200** `{ "ride": { "id": 9, "status": "cancelled" } }`

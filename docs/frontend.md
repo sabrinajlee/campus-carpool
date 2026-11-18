@@ -38,24 +38,23 @@ Use these page titles everywhere (Figma frames, tickets, branch names) so everyo
 | Reset password | `/reset-password?token=...` | `pages/ResetPassword.jsx` | No | Opened from the emailed link. New password and confirm, then `/login` with a success message. An expired or used token shows a notice with a link to `/forgot-password`. | TextInput, Button, *InlineError* | |
 | Travel preferences | `/` while onboarding | `pages/TravelPreferences.jsx` | No | The landing page while `user.phone` is `null`: `/` shows it instead of Explore (chosen in `App.jsx`), so it has no URL of its own. First onboarding screen. Two cards, "I need rides" and "I can drive". The choice isn't saved: it only decides whether Car details comes next. | PageHeader, Button | |
 | Find a ride (Explore) | `/` | `pages/Explore.jsx` | Yes | Home page once onboarding is done (before that, `/` shows Travel preferences). From/To search, date and time chips, Filters sheet, list of open rides. Full rides are hidden. Tapping a card opens Ride details. Loading, empty ("No rides match") and error states. | PageHeader, RouteTimeline, DateChip, Avatar, *FilterSheet*, *EmptyState*, *InlineError*, *Spinner* | |
-| Ride details | `/rides/:id` | `pages/RideDetails.jsx` | Yes | The rider's view of one ride, in every state: not requested (Request a seat), full, pending, accepted (driver contact and vehicle), and declined, cancelled or past (read-only). Cancel ride opens the confirm cancel dialog. See [Ride details by situation](#ride-details-by-situation). | PageHeader (showBack), StatusBadge, Button, RouteHeader, PersonRow, RouteTimeline, PriceBanner, VehicleCard, *ConfirmDialog* | |
+| Ride details | `/rides/:id` | `pages/RideDetails.jsx` | Yes | One ride, seen by anyone. **From Explore** (no link to the ride): Request a seat, or a greyed "Ride full". **From My trips, Riding** (the user's request is pending or accepted): "Waiting for driver" or "Accepted" badge, the driver's contact and vehicle once accepted, Cancel ride. Declined and cancelled are read-only. **From My trips, Driving** (the driver's own ride): "N Requests", "Seats Filled" or no badge, Requests with accept and decline, Confirmed Riders with contact info and remove (confirm first), Cancel ride. Contact info on either side only shows once a request is accepted. Cancel ride opens a confirm dialog, then Ride cancelled. **This page builds its own accept, decline and remove buttons** (round icon buttons, "No seats left" disabled state, double-tap guard, labels like "Accept Iris") and passes them into `PersonRow`'s `action`. See [Ride details by situation](#ride-details-by-situation). | PageHeader (showBack), StatusBadge, Button, RouteHeader, PersonRow, RouteTimeline, PriceBanner, VehicleCard, *ConfirmDialog* | |
 | Request sent | `/rides/:id/requested` | `pages/RequestSent.jsx` | No | Terminal confirmation: "Request sent!", summary with "Request pending", My trips and Back to explore. Back must not resubmit. | Button, StatusBadge, ConfirmationLayout, TripSummaryCard | |
 | Ride cancelled | `/rides/:id/cancelled` | `pages/RideCancelled.jsx` | No | Terminal confirmation after a cancel. Copy depends on who cancelled: rider sees "Driver will be notified", driver sees "Riders will be notified". Pass who cancelled in `navigate` state. My trips and Back to explore. | Button, ConfirmationLayout, TripSummaryCard | |
 | Was your ride completed? | `/rides/:id/complete` | `pages/RideCompleted.jsx` | No | Opens instead of Ride details when a trip in My trips is in the past. Completed! records the completion and goes to My trips. My trips and Back to explore skip it, and it shows again next time. Needs request status `completed` in the database first. | Button (success), ConfirmationLayout, TripSummaryCard | |
 | Post a ride | `/post` | `pages/PostRide.jsx` | Yes | Step 1 of 2: leaving from, going to, date, departure time, estimated arrival, seats (1 to 7), price per seat (CAD). Continue to pickup details. Users without a vehicle see the "add a vehicle first" dialog instead. | PageHeader, TextInput, Button, NumberStepper, *ConfirmDialog* | |
 | Pickup & drop-off | `/post/pickup` | `pages/PickupDropoff.jsx` | Yes | Step 2 of 2: pickup location, drop-off location, optional notes, trip summary, Post ride. Creates the trip, guarded against double taps. | PageHeader (showBack), TextInput (multiline), Card (soft), Button, Alert | |
 | Ride posted | `/rides/:id/posted` | `pages/RidePosted.jsx` | No | Terminal confirmation: "Ride Posted!", summary, "You'll see requests under My trips". My trips (Driving tab) and Back to explore. | Button, ConfirmationLayout, TripSummaryCard | |
-| My trips | `/trips` | `pages/MyTrips.jsx` | Yes | Riding and Driving tabs. Upcoming trip cards with status badges. Riding cards open Ride details (or Was your ride completed? if past). Driving cards show request counts and passengers and open Manage requests. | PageHeader, StatusBadge, Card, Button, *EmptyState*, *InlineError* | |
-| Manage requests | `/trips/:id/requests` | `pages/ManageRequests.jsx` | Yes | The driver's view of their own ride. Pending requests with accept and decline, confirmed riders with contact info and remove, seats remaining, Cancel ride (confirm dialog, then Ride cancelled with the driver copy). **This page builds its own accept, decline and remove buttons** (round icon buttons, "No seats left" disabled state, confirm before remove, double-tap guard, labels like "Accept Iris") and passes them into `PersonRow`'s `action`. | PageHeader (showBack), StatusBadge, Button, RouteHeader, PersonRow, PriceBanner, *ConfirmDialog* | |
+| My trips | `/trips` | `pages/MyTrips.jsx` | Yes | Riding and Driving tabs. Upcoming trip cards with status badges. Riding cards open Ride details (or Was your ride completed? if past). Driving cards show request counts and passengers and open Ride details (the driver's view). | PageHeader, StatusBadge, Card, Button, *EmptyState*, *InlineError* | |
 | Messages | `/messages` | `pages/Messages.jsx` | Yes | Later feature. For now this tab is a temporary preview of every shared component. | All of them | |
 | My profile | `/profile` | `pages/Profile.jsx` | Yes | Initials, name, "Verified Western student", rows for Basic information and Car details, placeholder rows for ride history and connections ("Coming soon"), red Logout button. | PageHeader, Button (danger), Avatar (lg) | |
 | Basic information | `/profile/basic-info` | `pages/BasicInfo.jsx` | Yes, hidden during onboarding | School email (read-only), full name (set once, read-only after), phone number (editable). During onboarding the button says Continue and goes to Explore. From Profile it says Save Changes and returns to Profile. | PageHeader (showBack), TextInput (helper, read-only), Button, *Toast* | |
 | Car details | `/profile/vehicle` | `pages/CarDetails.jsx` | Yes, hidden during onboarding | Make, model, colour, licence plate, seats stepper (default 3), preview of what accepted riders see. Same page for onboarding, the "add a vehicle first" dialog and Profile. Skip for now shows only during onboarding. Where Save goes is in [Onboarding](#onboarding). | PageHeader (showBack), TextInput, Button, NumberStepper, VehicleCard | |
 | Error / not found | `/error` and any unknown URL (`*`) | `pages/ErrorPage.jsx` | No | "Something went wrong." Report a problem (placeholder) and Back to home (Explore, or Login if logged out). Only for failures the user can't fix on the spot. A failed list or form shows an inline error with Retry instead. | Button, ConfirmationLayout | |
 
-**Not routed:** Ride history and Connections are later features (rows on My profile only). Settings and Public profile were cut. The confirm cancel and "add a vehicle first" dialogs are `ConfirmDialog` states of the pages that open them.
+**Not routed:** Ride history and Connections are later features (rows on My profile only). Settings and Public profile were cut. Manage requests was merged into Ride details: the driver manages requests on `/rides/:id`. The confirm cancel and "add a vehicle first" dialogs are `ConfirmDialog` states of the pages that open them.
 
-**Route changes still to make in `App.jsx`:** add the new routes above, and replace the `*` redirect with `ErrorPage`.
+**Route changes still to make:** add the new routes above, and replace the `*` redirect with `ErrorPage`. Remove the `/trips/:id/requests` route and the `ManageRequests.jsx` stub, and point My trips' Driving cards at `/rides/:id`.
 
 ## Rules to avoid merge conflicts
 
@@ -120,7 +119,7 @@ Travel preferences isn't saved anywhere. The backend has no driver or rider role
 
 ### Cancel a request (rider)
 
-`/trips` → View trip details → `/rides/:id` → **Cancel ride** → confirm dialog ("The driver will be notified") → the seat is returned and the driver emailed → `/rides/:id/cancelled` (rider copy).
+`/trips` (Riding) → View trip details → `/rides/:id` → **Cancel ride** → confirm dialog ("The driver will be notified") → the seat is returned and the driver emailed → `/rides/:id/cancelled` (rider copy).
 
 ### Post a ride (driver)
 
@@ -133,14 +132,14 @@ Travel preferences isn't saved anywhere. The backend has no driver or rider role
 
 ### Handle requests (driver)
 
-- The driver is emailed, or sees "N Requests" on the Driving tab of `/trips` → `/trips/:id/requests`.
+- The driver is emailed, or sees "N Requests" on the Driving tab of `/trips` → `/rides/:id` (driver's view).
 - **Accept**: the seat count drops, both people are emailed. The last seat makes the ride Full and hides it from Explore. If another accept took the last seat first, show "No seats left" and leave the request pending.
 - **Decline**: the rider is emailed.
 - **Remove** (on a confirmed rider): confirm first, then the rider is emailed and taken off, and the seat goes back.
 
 ### Cancel a ride (driver)
 
-`/trips/:id/requests` → **Cancel ride** → confirm dialog ("All riders will be notified") → the ride is cancelled, removed from Explore, and every pending and accepted rider emailed → `/rides/:id/cancelled` (driver copy). Riders then see the ride as Cancelled on `/trips` and `/rides/:id`.
+`/trips?tab=driving` → `/rides/:id` → **Cancel ride** → confirm dialog ("All riders will be notified") → the ride is cancelled, removed from Explore, and every pending and accepted rider emailed → `/rides/:id/cancelled` (driver copy). Riders then see the ride as Cancelled on `/trips` and `/rides/:id`.
 
 ### After the ride: confirm completion
 
@@ -177,20 +176,21 @@ Nothing happens when the departure time passes. When a rider taps a past trip on
 
 ### Ride details by situation
 
-Ride details is one page with many states. Check this table before building `/rides/:id` and `/trips/:id/requests`.
+Ride details is one page with many states. Check this table before changing `/rides/:id`. Riders reach it from Explore (no request yet) or from the Riding tab of My trips (pending or accepted). Drivers reach their own ride from the Driving tab.
 
 | Viewer | Request status | Ride status | Page and state | Main button | Contact and vehicle shown? |
 |---|---|---|---|---|---|
 | Rider | none | open | `/rides/:id` | Request a seat | No |
 | Rider | none | full | `/rides/:id`, full | none (greyed "Ride full") | No |
-| Rider | pending | open or full | `/rides/:id`, pending | Cancel ride | No |
+| Rider | pending | open or full | `/rides/:id`, pending ("Waiting for driver") | Cancel ride | No |
 | Rider | accepted | open or full | `/rides/:id`, accepted | Cancel ride | Yes |
 | Rider | declined | any | `/rides/:id`, read-only | none | No |
 | Rider | any | cancelled by driver | `/rides/:id`, read-only with a banner | none | No |
 | Rider | accepted | in the past | `/rides/:id/complete`, then read-only | Completed! | Yes |
-| Driver (their own ride) | n/a | any | `/trips/:id/requests` | Cancel ride | Rider contact, accepted riders only |
+| Driver (their own ride) | n/a | open or full | `/rides/:id`, driver's view | Cancel ride | Rider contact, accepted riders only |
+| Driver (their own ride) | n/a | cancelled | `/rides/:id`, read-only | none | No |
 
-A driver opening their own ride at `/rides/:id` sees no Request button, and gets a link to `/trips/:id/requests` instead. Each request is for one seat.
+The driver's view replaces Your driver, Pickup & drop-off and the vehicle with **Requests** (pending, accept and decline) and **Confirmed Riders** (accepted, contact and remove). Its badge is "N Requests" when requests are pending, else "Seats Filled" when full, else no badge (the same order as the Driving tab). Each request is for one seat.
 
 ### Statuses and emails
 
@@ -198,16 +198,16 @@ A driver opening their own ride at `/rides/:id` sees no Request button, and gets
 
 **Request status:** `pending`, `accepted`, `declined`, `cancelled`. Planned, and needing a migration: `completed`, and a separate "cancelled by driver" value.
 
-**Badges shown to users** (all from `StatusBadge`): N seats left (amber, pending), Accepted, Declined, Cancelled, Completed, N Requests, Seats Filled.
+**Badges shown to users** (all from `StatusBadge`): N seats left (amber, pending; "Waiting for driver" on Ride details), Accepted, Declined, Cancelled, Completed, N Requests, Seats Filled.
 
 | Trigger | Emailed to | Link opens |
 |---|---|---|
 | Account created | New user | `/login?verify=...`, then onboarding |
 | Forgot password | User | `/reset-password?token=...` |
-| New seat request | Driver | `/trips/:id/requests` |
+| New seat request | Driver | `/rides/:id` (driver's view) |
 | Request accepted | Rider (and a confirmation to the driver) | `/rides/:id` (accepted) |
 | Request declined | Rider (and a confirmation to the driver) | `/rides/:id` (read-only) |
-| Rider cancelled | Driver | `/trips/:id/requests` |
+| Rider cancelled | Driver | `/rides/:id` (driver's view) |
 | Driver cancelled the ride, or removed a confirmed rider | Every pending and accepted rider (or just the one removed) | `/rides/:id` (read-only) |
 | Completion reminder (later feature) | Rider | `/rides/:id/complete` |
 
@@ -239,7 +239,7 @@ A driver opening their own ride at `/rides/:id` sees no Request button, and gets
 | Ride details | Request a seat | The ride has a seat left | When full it's replaced by a greyed "Ride full". Hidden on your own ride. An unfinished profile opens a prompt instead of disabling it. |
 | Post a ride | Continue to pickup details | All fields filled and valid | Date not in the past, arrival after departure, origin differs from destination, seats not above the vehicle's seats, price a number of 0 or more. |
 | Pickup & drop-off | Post ride | Pickup and drop-off filled | Notes are optional. |
-| Manage requests | Accept | The ride still has a seat left | Otherwise greyed with "No seats left". Decline stays active. |
+| Ride details (driver) | Accept | The ride still has a seat left | Otherwise greyed with "No seats left". Decline stays active. |
 | Confirm dialog | Confirm cancel | Never disabled | Disabled with loading after the tap. |
 
 ## Shared components
@@ -261,8 +261,8 @@ Everything in `src/components/`, imported from `"../components"`. Each component
 | `DateChip` | `date` | "Fri, Nov 13" in a lavender pill. |
 | `RouteTimeline` | `from`, `to` | Dot → line → ring. The page passes what goes beside each point (Explore search, ride cards, pickup & drop-off). |
 | `Alert` | `type`: `info` \| `success` \| `error` | Message box for form results and errors. |
-| `PersonRow` | `name`, `action`, `note`, `contact` | Avatar, name, "Verified Western student". `action` is anything on the right (the page builds accept, decline and remove buttons). `note` is a grey footer, `contact` a green one (accepted only). Driver on Ride details, requests and confirmed riders on Manage requests. |
-| `RouteHeader` | `departAt`, `origin`, `pickupPoint`, `destination`, `dropoffPoint`, `seats`, `badge` | Top card of Ride details and Manage requests. `seats` is seats still available. |
+| `PersonRow` | `name`, `action`, `note`, `contact` | Avatar, name, "Verified Western student". `action` is anything on the right (the page builds accept, decline and remove buttons). `note` is a grey footer, `contact` a green one (accepted only). On Ride details: the driver (rider's view), and requests and confirmed riders (driver's view). |
+| `RouteHeader` | `departAt`, `origin`, `pickupPoint`, `destination`, `dropoffPoint`, `seats`, `badge` | Top card of Ride details. `seats` is seats still available. |
 | `PriceBanner` | `price`, `seats` | "Price per seat", "N seats available" and the price on a lavender panel. |
 | `VehicleCard` | `colour`, `make`, `model`, `seats`, `plate` | Accepted riders on Ride details, and the Car details preview. |
 | `TripSummaryCard` | `origin`, `destination`, `departAt`, `badge`, `note` | Route and date on the confirmation screens, with an optional badge and note. |
@@ -277,14 +277,14 @@ Roughly in build order. "Used on" helps decide who builds it first.
 | Component | What it is | Used on |
 |---|---|---|
 | `Logo` | Placeholder circle and wordmark | Login, Sign up |
-| `ConfirmDialog` | Title, body, two buttons. Covers confirm cancel (rider and driver copy) and add a vehicle first | Ride details, Post a ride, Manage requests |
+| `ConfirmDialog` | Title, body, two buttons. Covers confirm cancel (rider and driver copy) and add a vehicle first | Ride details (cancel ride, remove rider), Post a ride |
 | `FilterSheet` | Bottom sheet with filters (not designed yet) | Explore |
 | `EmptyState` | Icon, message, optional button | Every list |
 | `InlineError` | Message with Retry when a list or form fails | Every list and form |
 | `Spinner` | Loading for buttons, lists and pages | Everywhere |
 | `Toast` | Short messages like "Saved" | Basic information, Car details |
 
-**Page-only, not shared:** used on one page, so build them in that page's file and `PageName.css`: Explore's ride card, filter chips and From/To search; My trips' trip card and Riding/Driving tabs; Travel preferences' selectable cards; My profile's list rows; Post a ride's price field; Manage requests' accept, decline and remove buttons; the info boxes on Travel preferences and Car details; Pickup & drop-off's trip summary.
+**Page-only, not shared:** used on one page, so build them in that page's file and `PageName.css`: Explore's ride card, filter chips and From/To search; My trips' trip card and Riding/Driving tabs; Travel preferences' selectable cards; My profile's list rows; Post a ride's price field; Ride details' accept, decline and remove buttons; the info boxes on Travel preferences and Car details; Pickup & drop-off's trip summary.
 
 ### Shared code that isn't a component
 
@@ -317,7 +317,7 @@ Dates are shown in the user's local time. Need a new format? Add a function here
 
 - **Plain values, not objects.** Components take `origin`, `departAt`, `price`, `seats` and so on, not a whole ride. Pass API fields straight in: `departAt={ride.depart_at}`, `pickupPoint={ride.pickup_point}`, `price={ride.price_per_seat}`.
 - **Seats.** `RouteHeader` and `PriceBanner` both take `seats` as seats still available on the ride (not `max_seats`).
-- **Content the page fills in.** `PersonRow`'s `action`, `RouteTimeline`'s `from` and `to`, `ConfirmationLayout`'s children and `actions`, and the `badge` on `RouteHeader` and `TripSummaryCard` are filled by the page. For example, Manage requests builds its own accept, decline and remove buttons and passes them as `action`.
+- **Content the page fills in.** `PersonRow`'s `action`, `RouteTimeline`'s `from` and `to`, `ConfirmationLayout`'s children and `actions`, and the `badge` on `RouteHeader` and `TripSummaryCard` are filled by the page. For example, Ride details builds its own accept, decline and remove buttons and passes them as `action`.
 - **Privacy.** Only pass `contact` to `PersonRow`, or render `VehicleCard`, when the request is accepted. The server shouldn't send those fields otherwise.
 - **Status badges.** `pending` and `seats` need a `count` (seats left) or the badge says "Pending". `requests` needs the number of requests.
 - **Confirmation screens** are outside `AppLayout`, so wrap `ConfirmationLayout` in `<div className="app-shell">`.
