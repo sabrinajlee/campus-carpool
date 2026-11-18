@@ -72,9 +72,10 @@ Use these page titles everywhere (Figma frames, tickets, branch names) so everyo
    color: var(--color-primary);
    padding: var(--space-4);
    ```
-4. **Page-only styles:** add a `PageName.css` next to your page and import it in your page file. Prefix class names with the page (e.g. `.explore-card`) so they don't clash.
-5. **Backend calls:** add a function to `src/api.js` in your PR. Keep it to your own functions.
-6. **Before you start and before you open a PR:** `git pull origin main`.
+4. **Page-only styles:** add a `PageName.css` next to your page and import it in your page file. Prefix class names with the page (e.g. `.explore-card`) so they don't clash. Page CSS loads **before** `index.css`, so to change a shared class on your page use a compound selector (`.card.my-trips-card`), or the shared style wins. Shared component styles go in `index.css`, never in a page's CSS.
+5. **New shared component?** Add it to `components/index.js`, put its styles in `index.css`, and add it to the Messages tab preview in the same PR.
+6. **Backend calls:** add a function to `src/api.js` in your PR. Keep it to your own functions.
+7. **Before you start and before you open a PR:** `git pull origin main`.
 
 ## Flows
 
@@ -167,7 +168,7 @@ Nothing happens when the departure time passes. When a rider taps a past trip on
 9. **Dates and times.** The backend stores UTC. The frontend displays local time.
 10. **Deep links.** Emails link to specific pages (see [Statuses and emails](#statuses-and-emails)). A logged-out user goes to `/login` and then on to the target.
 11. **Buttons.** A primary button is disabled until every *required* field on the screen is valid, with a short reason under the field. After a tap, disable it and show loading so nothing is sent twice. The server re-checks everything. See [Button rules](#button-rules).
-12. **Data model gaps.** The `rides` table has no estimated arrival time yet (Post a ride collects it, but it isn't saved). Request status has no `completed` or "cancelled by driver" value yet, and `/rides/:id/complete` and the "cancelled by driver" banner both depend on those.
+12. **Data model gaps.** `GET /api/me/trips` must return `seats_left` on riding trips (the pending badge shows it). The `rides` table has no estimated arrival time yet (Post a ride collects it, but it isn't saved). Request status has no `completed` or "cancelled by driver" value yet, and `/rides/:id/complete` and the "cancelled by driver" banner both depend on those.
 13. **Out of the MVP:** ratings, problem reports, ride history, connections, in-app chat, settings, payments, saved routes. Completed! should still save each completion (ride, driver, rider, time) so history can be built from real data later.
 14. **Naming.** Use the page titles from the table in Figma frames, tickets and branch names (for example `feature/manage-requests`) so everyone means the same screen.
 
@@ -292,6 +293,30 @@ Write these once. Don't write a copy per page.
 |---|---|---|
 | API client | `src/api.js` (auth calls in `src/auth/authApi.js`) | Every backend call, the standard error shape, and a redirect to `/login` on a 401 |
 | Auth context and guard | `src/auth/AuthContext.jsx`, `src/auth/RequireAuth.jsx` | The logged-in user (including `phone`, used for onboarding mode), protected routes, and returning to the wanted page after login |
-| Formatters | `src/format.js` | Local date and time ("Fri, Nov 13", "4:30 PM", "Friday, November 13") and `$15` prices. Masked email still to add. |
+| Formatters | `src/format.js` | Dates, times and prices. See [Formatting](#formatting). Masked email still to add. |
 | Validators | to add | School email, password, phone, licence plate, price. The same functions decide when a button is disabled. |
 | Constants | to add | School name and email domain, support email, cooldown lengths |
+
+### Formatting
+
+Use `src/format.js` for every date, time and price shown on screen, so they look the same on every page. Don't write your own `toLocaleDateString` in a page. Each function takes the API value as is (an ISO date string, or a price in dollars) and returns `""` for a missing or invalid value.
+
+```js
+import { formatShortDate, formatLongDate, formatTime, formatPrice } from "../format.js";
+
+formatShortDate(ride.depart_at); // "Fri, Nov 13"          (DateChip, ride cards)
+formatLongDate(ride.depart_at);  // "Friday, November 13"  (TripSummaryCard)
+formatTime(ride.depart_at);      // "4:30 PM"              (RouteHeader)
+formatPrice(ride.price_per_seat); // 15 -> "$15", 12.5 -> "$12.50"
+```
+
+Dates are shown in the user's local time. Need a new format? Add a function here instead of formatting inside the page. (My trips still has its own `formatDepart` from before this file existed.)
+
+### Shared component details
+
+- **Plain values, not objects.** Components take `origin`, `departAt`, `price`, `seats` and so on, not a whole ride. Pass API fields straight in: `departAt={ride.depart_at}`, `pickupPoint={ride.pickup_point}`, `price={ride.price_per_seat}`.
+- **Seats.** `RouteHeader` and `PriceBanner` both take `seats` as seats still available on the ride (not `max_seats`).
+- **Content the page fills in.** `PersonRow`'s `action`, `RouteTimeline`'s `from` and `to`, `ConfirmationLayout`'s children and `actions`, and the `badge` on `RouteHeader` and `TripSummaryCard` are filled by the page. For example, Manage requests builds its own accept, decline and remove buttons and passes them as `action`.
+- **Privacy.** Only pass `contact` to `PersonRow`, or render `VehicleCard`, when the request is accepted. The server shouldn't send those fields otherwise.
+- **Status badges.** `pending` and `seats` need a `count` (seats left) or the badge says "Pending". `requests` needs the number of requests.
+- **Confirmation screens** are outside `AppLayout`, so wrap `ConfirmationLayout` in `<div className="app-shell">`.
