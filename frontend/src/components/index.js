@@ -6,3 +6,7 @@ export { default as StatusBadge } from "./StatusBadge.jsx";
 export { default as PageHeader } from "./PageHeader.jsx";
 export { default as BottomNav } from "./BottomNav.jsx";
 export { default as NumberStepper } from "./NumberStepper.jsx";
+export { default as Avatar } from "./Avatar.jsx";
+export { default as DateChip } from "./DateChip.jsx";
+export { default as RouteTimeline } from "./RouteTimeline.jsx";
+export { default as Alert } from "./Alert.jsx";

@@ -91,6 +91,8 @@ h2 {
 }
 
 .page-header__back {
+  display: flex;
+  align-items: center;
   border: none;
   background: none;
   padding: 2px;
@@ -197,6 +199,15 @@ textarea.field__input {
 .field__input:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: -1px;
+}
+
+.field__input:read-only {
+  color: var(--color-text-muted);
+}
+
+.field__helper {
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 .field__error {
@@ -352,6 +363,120 @@ textarea.field__input {
   text-align: center;
   font-size: 16px;
   font-weight: 700;
+}
+
+/* ===== Avatar ===== */
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.avatar--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+}
+
+/* ===== Date chip ===== */
+.date-chip {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===== Route timeline (dot → line → ring) ===== */
+.route-timeline__stop {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.route-timeline__marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 10px;
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.route-timeline__dot,
+.route-timeline__ring {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.route-timeline__dot {
+  background: var(--color-primary);
+}
+
+.route-timeline__ring {
+  border: 1.5px solid var(--color-primary);
+  background: var(--color-surface);
+}
+
+/* Runs from the dot down to the ring on the next stop */
+.route-timeline__line {
+  flex: 1;
+  width: 1px;
+  margin: 3px 0 -5px;
+  background: var(--color-border);
+}
+
+.route-timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.route-timeline__stop--from .route-timeline__content {
+  padding-bottom: var(--space-4);
+}
+
+.route-timeline__content small {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* ===== Alert ===== */
+.alert {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.alert--error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.alert--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.alert--info {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 /* ===== Placeholder for unfinished pages ===== */

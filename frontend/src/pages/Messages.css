@@ -38,6 +38,13 @@
   gap: var(--space-3);
 }
 
+.messages-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-5);
+}
+
 .messages-item {
   display: flex;
   flex-direction: column;
