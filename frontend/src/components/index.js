@@ -15,3 +15,4 @@ export { default as RouteHeader } from "./RouteHeader.jsx";
 export { default as PriceBanner } from "./PriceBanner.jsx";
 export { default as VehicleCard } from "./VehicleCard.jsx";
 export { default as TripSummaryCard } from "./TripSummaryCard.jsx";
+export { default as ConfirmationLayout } from "./ConfirmationLayout.jsx";

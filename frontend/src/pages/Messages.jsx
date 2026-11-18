@@ -4,6 +4,7 @@ import {
   Avatar,
   Button,
   Card,
+  ConfirmationLayout,
   DateChip,
   NumberStepper,
   PageHeader,
@@ -22,11 +23,6 @@ import "./Messages.css";
 // Messages (P34) is a later feature, so this tab shows every shared component
 // and its states instead. Add each new shared component here in the same PR
 // that creates it. Replace this file when Messages is actually built.
-
-// Components we plan to build, so nobody makes their own version in a page.
-const PLANNED = [
-  "ConfirmationLayout",
-];
 
 function Section({ title, note, children }) {
   return (
@@ -249,15 +245,60 @@ export default function Messages() {
         </div>
       </Section>
 
+      <Section
+        title="ConfirmationLayout"
+        note="icon: check, cancel (indigo X), car, or error (red X); title, subtitle, children (card), actions (buttons, pinned to the bottom). Shown here in a short frame."
+      >
+        <div className="messages-stack">
+          <div className="messages-frame messages-confirmation">
+            <ConfirmationLayout
+              icon="check"
+              title="Request sent!"
+              subtitle="Alex will review your request to join the ride to Toronto."
+              actions={
+                <>
+                  <Button fullWidth>My trips</Button>
+                  <Button variant="secondary" fullWidth>
+                    Back to explore
+                  </Button>
+                </>
+              }
+            >
+              <TripSummaryCard
+                origin="London"
+                destination="Toronto"
+                departAt={SAMPLE_DEPART}
+                badge={<StatusBadge status="pending" label="Request pending" />}
+                note="You'll see updates under My trips."
+              />
+            </ConfirmationLayout>
+          </div>
+          <div className="messages-frame messages-confirmation">
+            <ConfirmationLayout
+              icon="error"
+              title="ERROR!"
+              subtitle="Something went wrong."
+              actions={
+                <>
+                  <Button variant="secondary" fullWidth>
+                    Report a problem
+                  </Button>
+                  <Button variant="secondary" fullWidth>
+                    Back to home
+                  </Button>
+                </>
+              }
+            />
+          </div>
+        </div>
+      </Section>
+
       <Section title="BottomNav" note="Shown at the bottom of this page. Pages inside AppLayout get it automatically." />
 
-      <Section title="Planned (not built yet)" note="Don't build these inside a page. They're coming as shared components.">
-        <ul className="messages-list">
-          {PLANNED.map((name) => (
-            <li key={name}>{name}</li>
-          ))}
-        </ul>
-      </Section>
+      <Section
+        title="Still to build"
+        note="See the Shared components section of docs/frontend.md. Don't build those inside a page."
+      />
     </main>
   );
 }

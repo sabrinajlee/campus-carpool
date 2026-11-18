@@ -692,6 +692,63 @@ textarea.field__input {
   color: var(--color-text-muted);
 }
 
+/* ===== Confirmation layout (Request sent, Ride posted, Error, ...) ===== */
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-6) var(--space-4) var(--space-5);
+}
+
+.confirmation__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.confirmation__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.confirmation__icon--error {
+  background: var(--color-danger);
+}
+
+.confirmation__title {
+  margin-top: var(--space-4);
+}
+
+.confirmation__subtitle {
+  max-width: 260px;
+  margin: var(--space-2) 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.confirmation__card {
+  width: 100%;
+  margin-top: var(--space-5);
+  text-align: left;
+}
+
+.confirmation__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
 /* ===== Placeholder for unfinished pages ===== */
 .todo {
   padding: var(--space-4);
