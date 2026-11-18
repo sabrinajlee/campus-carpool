@@ -1,0 +1,89 @@
+/* Page-only styles for CarDetails.jsx.
+   Page CSS loads before index.css, so overrides of shared component classes
+   (.card, .field__input) use a more specific selector to win. */
+
+/* Fill the screen so the Save button sits at the bottom, as in the wireframe */
+.car-details {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.car-details-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Make + Model, Colour + Licence plate side by side */
+.car-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--space-3);
+}
+
+.car-details-plate .field__input {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* "What accepted riders will see" box around the VehicleCard preview */
+.car-details-preview {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+}
+
+.car-details-preview-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.car-details-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-6);
+}
+
+.car-details-skip {
+  align-self: center;
+  padding: var(--space-2);
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.car-details-skip-note {
+  margin: 0;
+  font-size: 11px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.car-details-status {
+  color: var(--color-text-muted);
+}
+
+.card.car-details-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.car-details-error-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}
