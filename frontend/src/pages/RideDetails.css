@@ -1,4 +1,4 @@
-/* P11 Ride details. Page-only styles, prefixed with "ride-details". */
+/* Ride details. Page-only styles, prefixed with "ride-details". */
 
 .ride-details {
     display: flex;
@@ -10,6 +10,12 @@
 .ride-details__heading {
     margin: 0 0 var(--space-2);
     font-size: 1.125rem;
+}
+
+.ride-details__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .ride-details__stop {
@@ -28,10 +34,37 @@
     font-size: 0.8125rem;
 }
 
-.ride-details__verified {
-    width: 20px;
-    height: 20px;
-    color: var(--color-success);
+/* Round accept / decline / remove buttons */
+.ride-details__round {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+}
+
+.ride-details__round--danger {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.ride-details__round--success {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.ride-details__round:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ride-details__round:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .ride-details__actions {
@@ -49,4 +82,27 @@
     color: inherit;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* Confirm dialog (page-local until the shared ConfirmDialog exists) */
+.ride-details__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    background: color-mix(in srgb, var(--color-text) 40%, transparent);
+}
+
+.ride-details__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: 100%;
+    max-width: calc(var(--app-max-width) - 2 * var(--space-4));
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
 }

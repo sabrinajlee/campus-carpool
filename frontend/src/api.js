@@ -105,3 +105,22 @@ export async function requestSeat(rideId) {
   const data = await apiPost(`/api/rides/${rideId}/requests`, {});
   return data.request;
 }
+// Ride details: the rider's request and the driver's own ride.
+// Routes are from docs/api-spec.md (draft); none are in the backend yet.
+
+// GET /api/rides/:id/requests -> { requests: [{ id, status, rider: { id, name, phone, email } }] }
+// rider.phone / rider.email only once the request is accepted.
+export const getRideRequests = (rideId) =>
+  apiGet(`/api/rides/${rideId}/requests`).then((data) => data.requests);
+
+// PATCH /api/requests/:id { status: "accepted" | "declined" } -> { request: {...} }
+// Also removes a confirmed rider (status "declined"), as in docs/api-spec.md.
+// Error code: no_seats_left (another accept took the last seat).
+export const respondToRequest = (requestId, status) =>
+  apiPatch(`/api/requests/${requestId}`, { status }).then((data) => data.request);
+
+// PATCH /api/requests/:id/cancel  (rider cancels their own request)
+export const cancelMyRequest = (requestId) => apiPatch(`/api/requests/${requestId}/cancel`);
+
+// PATCH /api/rides/:id/cancel  (driver cancels their own ride)
+export const cancelRide = (rideId) => apiPatch(`/api/rides/${rideId}/cancel`);
