@@ -33,3 +33,8 @@ export async function apiPost(path, body) {
   }
   return data;
 }
+
+// Car details. PROPOSED endpoints: not in docs/api-spec.md or the backend yet.
+// GET returns { vehicle: {...} | null }. POST saves the vehicle (make, model, colour, plate, seats).
+export const getMyVehicle = () => apiGet("/api/me/vehicle");
+export const saveMyVehicle = (vehicle) => apiPost("/api/me/vehicle", vehicle);
