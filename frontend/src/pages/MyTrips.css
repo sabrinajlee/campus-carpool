@@ -1,0 +1,109 @@
+/* Page-only styles for MyTrips.jsx.
+   Page CSS loads before index.css, so overrides of shared component classes
+   (.card, .badge) use a compound selector to win. */
+
+.my-trips-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  margin-bottom: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.my-trips-tab {
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.my-trips-tab--active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.my-trips-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.my-trips-section-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.card.my-trips-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-radius: 16px;
+}
+
+.my-trips-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.my-trips-route {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.my-trips-badge {
+  flex-shrink: 0;
+  display: flex;
+}
+
+/* Larger Figma size for every StatusBadge on this page */
+.my-trips-badge .badge {
+  padding: 6px 16px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.my-trips-meta {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.my-trips-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.my-trips-status {
+  color: var(--color-text-muted);
+}
+
+.card.my-trips-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.my-trips-empty-text {
+  margin: 0;
+  color: var(--color-text-muted);
+}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { getMyTrips } from "../api";
 import { Button, Card, PageHeader, StatusBadge } from "../components";
+import "./MyTrips.css";
 
 // My trips: rides I asked to join (Riding) and rides I posted (Driving).
 // Data comes from GET /api/me/trips, which returns:
@@ -75,77 +76,6 @@ const SAMPLE_TRIPS = {
   ],
 };
 
-const styles = {
-  tabs: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "var(--space-1)",
-    padding: "var(--space-1)",
-    marginBottom: "var(--space-5)",
-    background: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-md)",
-  },
-  tab: {
-    minHeight: 44,
-    border: "none",
-    borderRadius: "var(--radius-sm)",
-    background: "transparent",
-    font: "inherit",
-    fontSize: 15,
-    fontWeight: 600,
-    color: "var(--color-text-muted)",
-    cursor: "pointer",
-  },
-  tabActive: { background: "var(--color-primary-soft)", color: "var(--color-primary)" },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--space-4)",
-    marginBottom: "var(--space-6)",
-  },
-  sectionTitle: { fontSize: 20, fontWeight: 700 },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--space-2)",
-    padding: "var(--space-5) var(--space-5) var(--space-4)",
-    borderRadius: 16,
-  },
-  top: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: "var(--space-3)",
-  },
-  route: { margin: 0, fontSize: 18, fontWeight: 700 },
-  badge: { flexShrink: 0, display: "flex" },
-  meta: { margin: 0, color: "var(--color-text-muted)" },
-  link: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: "var(--space-2)",
-    paddingTop: "var(--space-4)",
-    borderTop: "1px solid var(--color-border)",
-    color: "var(--color-primary)",
-    fontWeight: 600,
-    textDecoration: "none",
-  },
-  status: { color: "var(--color-text-muted)" },
-  empty: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: "var(--space-3)",
-  },
-  emptyText: { margin: 0, color: "var(--color-text-muted)" },
-};
-
-// Inline styles can't reach the shared StatusBadge, so this one rule makes
-// every badge on this page the larger Figma size.
-const BADGE_SIZE = `.trips-badge .badge { padding: 6px 16px; font-size: 13px; white-space: nowrap; }`;
-
 const TABS = [
   { id: "riding", label: "Riding" },
   { id: "driving", label: "Driving" },
@@ -184,18 +114,18 @@ function TripCard({ trip, tab }) {
       : `Driver: ${trip.driver_name ?? "Unknown"}`;
 
   return (
-    <Card style={styles.card}>
-      <div style={styles.top}>
-        <h3 style={styles.route}>
+    <Card className="my-trips-card">
+      <div className="my-trips-top">
+        <h3 className="my-trips-route">
           {trip.origin} → {trip.destination}
         </h3>
-        <div className="trips-badge" style={styles.badge}>
+        <div className="my-trips-badge">
           {tab === "driving" ? <DrivingBadge trip={trip} /> : <StatusBadge status={trip.request_status} count={trip.seats_left} />}
         </div>
       </div>
-      <p style={styles.meta}>{formatDepart(trip.depart_at)}</p>
-      <p style={styles.meta}>{people}</p>
-      <Link style={styles.link} to={to}>
+      <p className="my-trips-meta">{formatDepart(trip.depart_at)}</p>
+      <p className="my-trips-meta">{people}</p>
+      <Link className="my-trips-link" to={to}>
         View trip details
         <ChevronRight size={18} aria-hidden="true" />
       </Link>
@@ -206,13 +136,13 @@ function TripCard({ trip, tab }) {
 function EmptyState({ tab }) {
   const navigate = useNavigate();
   return tab === "driving" ? (
-    <Card style={styles.empty}>
-      <p style={styles.emptyText}>You haven't posted any rides yet.</p>
+    <Card className="my-trips-empty">
+      <p className="my-trips-empty-text">You haven't posted any rides yet.</p>
       <Button onClick={() => navigate("/post")}>Post a ride</Button>
     </Card>
   ) : (
-    <Card style={styles.empty}>
-      <p style={styles.emptyText}>You haven't asked to join any rides yet.</p>
+    <Card className="my-trips-empty">
+      <p className="my-trips-empty-text">You haven't asked to join any rides yet.</p>
       <Button onClick={() => navigate("/")}>Find a ride</Button>
     </Card>
   );
@@ -245,17 +175,16 @@ export default function MyTrips() {
 
   return (
     <main className="page">
-      <style>{BADGE_SIZE}</style>
       <PageHeader title="My trips" subtitle="Keep track of rides you request or offer." />
 
-      <div style={styles.tabs} role="tablist" aria-label="Trip type">
+      <div className="my-trips-tabs" role="tablist" aria-label="Trip type">
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
             role="tab"
             aria-selected={tab === t.id}
-            style={{ ...styles.tab, ...(tab === t.id && styles.tabActive) }}
+            className={`my-trips-tab${tab === t.id ? " my-trips-tab--active" : ""}`}
             onClick={() => setSearchParams(t.id === "riding" ? {} : { tab: t.id }, { replace: true })}
           >
             {t.label}
@@ -265,8 +194,8 @@ export default function MyTrips() {
 
       <div role="tabpanel">
         {error ? (
-          <Card style={styles.empty}>
-            <p style={styles.emptyText} role="alert">
+          <Card className="my-trips-empty">
+            <p className="my-trips-empty-text" role="alert">
               {error}
             </p>
             <Button variant="secondary" onClick={load}>
@@ -274,22 +203,22 @@ export default function MyTrips() {
             </Button>
           </Card>
         ) : !trips ? (
-          <p style={styles.status}>Loading your trips…</p>
+          <p className="my-trips-status">Loading your trips…</p>
         ) : list.length === 0 ? (
           <EmptyState tab={tab} />
         ) : (
           <>
             {upcoming.length > 0 && (
-              <section style={styles.section}>
-                <h2 style={styles.sectionTitle}>Upcoming</h2>
+              <section className="my-trips-section">
+                <h2 className="my-trips-section-title">Upcoming</h2>
                 {upcoming.map((trip) => (
                   <TripCard key={trip.request_id ?? trip.id} trip={trip} tab={tab} />
                 ))}
               </section>
             )}
             {past.length > 0 && (
-              <section style={styles.section}>
-                <h2 style={styles.sectionTitle}>Past</h2>
+              <section className="my-trips-section">
+                <h2 className="my-trips-section-title">Past</h2>
                 {past.map((trip) => (
                   <TripCard key={trip.request_id ?? trip.id} trip={trip} tab={tab} />
                 ))}

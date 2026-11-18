@@ -1,40 +1,13 @@
 import { useId, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, NumberStepper, PageHeader, TextInput } from "../components";
+import "./PostRide.css";
 
 // Step 1 of "Post a ride". Sends the trip to step 2 (PickupDropoff.jsx) as
 // navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, pricing_type, price } })
 
 const MIN_SEATS = 1;
 const MAX_SEATS = 7;
-
-const styles = {
-  form: { marginTop: "var(--space-4)" },
-  half: { maxWidth: "50%" },
-  // Matches the shared .field__input so these rows line up with the text fields.
-  box: {
-    display: "flex",
-    alignItems: "center",
-    height: 44,
-    padding: "0 var(--space-3)",
-    background: "var(--color-surface)",
-    border: "1px solid var(--color-border)",
-    borderRadius: "var(--radius-sm)",
-  },
-  focused: { outline: "2px solid var(--color-primary)", outlineOffset: -1 },
-  priceBox: { gap: "var(--space-1)" },
-  priceInput: {
-    flex: 1,
-    minWidth: 0,
-    height: "100%",
-    border: "none",
-    background: "transparent",
-    font: "inherit",
-    color: "var(--color-text)",
-    outline: "none",
-  },
-  submit: { marginTop: "var(--space-2)" },
-};
 
 function todayString() {
   const now = new Date();
@@ -126,7 +99,7 @@ export default function PostRide() {
     <main className="page">
       <PageHeader title="Post a ride" subtitle="Share a trip you're already planning." />
 
-      <form style={styles.form} onSubmit={handleSubmit} noValidate>
+      <form className="post-ride-form" onSubmit={handleSubmit} noValidate>
         <TextInput
           label="Leaving from"
           placeholder="London, ON"
@@ -151,7 +124,7 @@ export default function PostRide() {
           onChange={update("date")}
           error={errors.date}
         />
-        <div style={styles.half}>
+        <div className="post-ride-half">
           <TextInput
             label="Departure time"
             type="time"
@@ -160,7 +133,7 @@ export default function PostRide() {
             error={errors.departTime}
           />
         </div>
-        <div style={styles.half}>
+        <div className="post-ride-half">
           <TextInput
             label="Estimated arrival time"
             type="time"
@@ -185,11 +158,11 @@ export default function PostRide() {
           <label className="field__label" htmlFor={priceId}>
             Price per seat
           </label>
-          <div style={{ ...styles.box, ...styles.priceBox, ...(priceFocused && styles.focused) }}>
+          <div className={`post-ride-box post-ride-price-box${priceFocused ? " post-ride-box--focused" : ""}`}>
             <span>$</span>
             <input
               id={priceId}
-              style={styles.priceInput}
+              className="post-ride-price-input"
               type="text"
               inputMode="decimal"
               placeholder="XX"
@@ -203,7 +176,7 @@ export default function PostRide() {
           {errors.price && <span className="field__error">{errors.price}</span>}
         </div>
 
-        <Button type="submit" fullWidth style={styles.submit}>
+        <Button type="submit" fullWidth className="post-ride-submit">
           Continue to pickup details
         </Button>
       </form>
