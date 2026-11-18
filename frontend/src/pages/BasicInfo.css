@@ -1,0 +1,26 @@
+/* Page-only styles for BasicInfo.jsx.
+   Page CSS loads before index.css, so overrides of shared component classes
+   (.page, .btn) use a compound selector to win. */
+
+/* Full-height column so the save button sits at the bottom of the screen. */
+.page.basic-info-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.basic-info-intro {
+  margin: 0 0 var(--space-5);
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.basic-info-form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.btn.basic-info-submit {
+  margin-top: auto;
+}
