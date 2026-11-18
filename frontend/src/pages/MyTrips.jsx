@@ -20,7 +20,8 @@ import "./MyTrips.css";
 // }
 //
 // driving[].status / riding[].status: rides.status (open, full, cancelled, completed)
-// riding[].request_status: ride_requests.status (pending, accepted, declined, cancelled)
+// riding[].id: the ride id; riding[].request_id: my ride_requests row
+// riding[].request_status: ride_requests.status (pending, accepted, declined, cancelled, removed, completed)
 // riding[].seats_left: seats still open on the ride (shown on pending requests)
 // driving[].passengers: names of riders whose request was accepted
 
@@ -105,9 +106,21 @@ function DrivingBadge({ trip }) {
   return <StatusBadge status="seats" count={trip.max_seats - taken} />;
 }
 
+// An accepted rider on a ride that has left (and wasn't cancelled) is asked if it was completed.
+// Once they answer, request_status is "completed" and the card opens Ride details again.
+function needsCompletion(trip) {
+  return trip.request_status === "accepted" && trip.status !== "cancelled" && new Date(trip.depart_at) < new Date();
+}
+
+// Drivers go to their request list (:id is the ride id); riders go to the ride itself,
+// or to "Was your ride completed?" for a past trip.
+function tripLink(trip, tab) {
+  if (tab === "driving") return `/trips/${trip.id}/requests`;
+  return needsCompletion(trip) ? `/rides/${trip.id}/complete` : `/rides/${trip.id}`;
+}
+
 function TripCard({ trip, tab }) {
-  // Drivers go to their request list; riders go to the ride itself.
-  const to = tab === "driving" ? `/trips/${trip.id}/requests` : `/rides/${trip.id}`;
+  const to = tripLink(trip, tab);
   const people =
     tab === "driving"
       ? `Passengers: ${trip.passengers?.length ? trip.passengers.join(", ") : "None"}`

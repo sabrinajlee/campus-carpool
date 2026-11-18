@@ -36,37 +36,39 @@ function Landing() {
 export default function App() {
   return (
     <Routes>
-      {/* No bottom nav */}
+      {/* No login needed, no bottom nav */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/check-email" element={<CheckEmail />} />
-      <Route path="/rides/:id/requested" element={<RequestSent />} />
       <Route path="/error" element={<ErrorPage />} />
 
-      {/* With bottom nav */}
-        <Route element={<RequireAuth />}>
-            {/* No bottom nav, but needs login */}
-            <Route path="/rides/:id/posted" element={<RidePosted />} />
-            <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
-            <Route path="/rides/:id/complete" element={<RideCompleted />} />
+      {/* Needs login */}
+      <Route element={<RequireAuth />}>
+        {/* No bottom nav: confirmation screens (/rides/:id/<past tense>) and the completion question */}
+        <Route path="/rides/:id/requested" element={<RequestSent />} />
+        <Route path="/rides/:id/posted" element={<RidePosted />} />
+        <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
+        <Route path="/rides/:id/complete" element={<RideCompleted />} />
 
-            {/* Landing: Travel preferences while onboarding, else Explore */}
-            <Route path="/" element={<Landing />}>
-              <Route index element={<Explore />} />
-            </Route>
-
-            <Route element={<AppLayout />}>
-            <Route path="/rides/:id" element={<RideDetails />} />
-            <Route path="/post" element={<PostRide />} />
-            <Route path="/post/pickup" element={<PickupDropoff />} />
-            <Route path="/trips" element={<MyTrips />} />
-            <Route path="/trips/:id/requests" element={<ManageRequests />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/profile/basic-info" element={<BasicInfo />} />
-            <Route path="/profile/vehicle" element={<CarDetails />} />
-          </Route>
+        {/* Landing: Travel preferences while onboarding, else Explore */}
+        <Route path="/" element={<Landing />}>
+          <Route index element={<Explore />} />
         </Route>
+
+        {/* With bottom nav */}
+        <Route element={<AppLayout />}>
+          <Route path="/rides/:id" element={<RideDetails />} />
+          <Route path="/post" element={<PostRide />} />
+          <Route path="/post/pickup" element={<PickupDropoff />} />
+          <Route path="/trips" element={<MyTrips />} />
+          {/* :id is the ride id (the driver's own ride) */}
+          <Route path="/trips/:id/requests" element={<ManageRequests />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/basic-info" element={<BasicInfo />} />
+          <Route path="/profile/vehicle" element={<CarDetails />} />
+        </Route>
+      </Route>
 
       {/* Any unknown URL */}
       <Route path="*" element={<ErrorPage />} />

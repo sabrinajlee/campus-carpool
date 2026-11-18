@@ -8,7 +8,8 @@ import "./RideCompleted.css";
 // Completed! records the completion and goes to My trips. My trips and Back to explore skip it,
 // so the screen shows again next time.
 //
-// Data comes from GET /api/rides/<id>. This page expects:
+// Data comes from GET /api/rides/<id>, which returns { "ride": {...} } (getRide unwraps "ride").
+// This page uses these fields (full shape in docs/api-spec.md):
 //
 // { "id": 7, "origin": "London", "destination": "Toronto",
 //   "depart_at": "2026-11-13T21:30:00Z", "status": "open",
@@ -17,9 +18,10 @@ import "./RideCompleted.css";
 //
 // status: rides.status (open, full, cancelled, completed)
 // my_request: the logged-in rider's ride_requests row (null if they never asked)
-// my_request.status: pending, accepted, declined, cancelled (+ completed, still needs a migration)
+// my_request.status: pending, accepted, declined, cancelled, removed, completed
+//   (removed and completed still need a migration)
 //
-// Completed! calls PATCH /api/requests/<my_request.id>/complete (proposed, not in the backend yet).
+// Completed! calls PATCH /api/requests/<my_request.id>/complete (in docs/api-spec.md, not in the backend yet).
 
 // ---------- Sample data for testing ----------
 // While USE_SAMPLE_DATA is true, the page shows the ride below and Completed! doesn't call
