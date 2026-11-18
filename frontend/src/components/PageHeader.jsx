@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 
 // <PageHeader title="My trips" subtitle="Keep track of rides you request or offer." />
 // <PageHeader title="Ride details" showBack />
@@ -9,7 +10,7 @@ export default function PageHeader({ title, subtitle, showBack = false }) {
     <header className="page-header">
       {showBack && (
         <button className="page-header__back" onClick={() => navigate(-1)} aria-label="Go back">
-          ←
+          <ChevronLeft size={22} />
         </button>
       )}
       <div>
