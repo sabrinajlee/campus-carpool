@@ -1,10 +1,27 @@
-const API_URL = import.meta.env.VITE_API_URL;
+import { mockGetRide, mockRequestSeat, mockSearchRides } from "./mocks/rides.js";
 
+const API_URL = import.meta.env.VITE_API_URL;
+const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
+
+// Changed (P11 Ride details): apiGet now throws an ApiError, like apiPost and apiPatch.
+// Before, it threw a plain Error with only a message, so pages couldn't tell a 404
+// (ride doesn't exist -> go to /error) from a network or server failure (show Retry).
+// Now callers can check err.status and err.code.
+// Successful responses work the same as before, so existing callers like
+// getMyTrips don't need changes.
 export async function apiGet(path) {
   const res = await fetch(`${API_URL}${path}`, { credentials: "include" });
-  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(
+        res.status,
+        data.error?.code ?? "UNKNOWN",
+        data.error?.message ?? `GET ${path} failed: ${res.status}`
+    );
+  }
+  return data;
 }
+
 export const getMyTrips = () => apiGet("/api/me/trips");
 
 
@@ -61,5 +78,30 @@ async function apiPatch(path, body) {
 }
 
 // GET /api/rides/<id> returns { "ride": {...} } (same wrapping as { "user": ... }); this returns the ride itself.
-export const getRide = (id) => apiGet(`/api/rides/${id}`).then((data) => data.ride);
+export const getRide = (id) =>
+    USE_MOCKS
+        ? mockGetRide(id)
+        : apiGet(`/api/rides/${id}`).then((data) => data.ride);
 export const completeRequest = (requestId) => apiPatch(`/api/requests/${requestId}/complete`);
+
+// P9 Explore. Proposed, not in the backend yet:
+// GET /api/rides?destination=&departs_after=&departs_before=  ->  { rides: [...] }
+export async function searchRides({ destination = "", departsAfter, departsBefore } = {}) {
+  if (USE_MOCKS) return mockSearchRides({ destination, departsAfter, departsBefore });
+  const params = new URLSearchParams();
+  if (destination) params.set("destination", destination);
+  if (departsAfter) params.set("departs_after", departsAfter);
+  if (departsBefore) params.set("departs_before", departsBefore);
+  const qs = params.toString();
+  const data = await apiGet(`/api/rides${qs ? `?${qs}` : ""}`);
+  return data.rides;
+}
+
+// P11 Request a seat. Proposed, not in the backend yet:
+// POST /api/rides/:id/requests  ->  201 { request: {...} }
+// Error codes: ride_full, ride_cancelled, already_requested
+export async function requestSeat(rideId) {
+  if (USE_MOCKS) return mockRequestSeat(rideId);
+  const data = await apiPost(`/api/rides/${rideId}/requests`, {});
+  return data.request;
+}
