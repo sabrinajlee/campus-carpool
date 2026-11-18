@@ -7,9 +7,14 @@ import {
   DateChip,
   NumberStepper,
   PageHeader,
+  PersonRow,
+  PriceBanner,
+  RouteHeader,
   RouteTimeline,
   StatusBadge,
   TextInput,
+  TripSummaryCard,
+  VehicleCard,
 } from "../components";
 import "./Messages.css";
 
@@ -20,11 +25,6 @@ import "./Messages.css";
 
 // Components we plan to build, so nobody makes their own version in a page.
 const PLANNED = [
-  "PersonRow",
-  "RouteHeader",
-  "PriceBanner",
-  "VehicleCard",
-  "TripSummaryCard",
   "ConfirmationLayout",
 ];
 
@@ -191,6 +191,61 @@ export default function Messages() {
           <Alert>A new link is on its way.</Alert>
           <Alert type="success">Your email is verified. You can log in now.</Alert>
           <Alert type="error">Couldn't post your ride. Try again.</Alert>
+        </div>
+      </Section>
+
+      <Section title="PersonRow" note="name, action (right side), note (grey footer), contact (green footer, accepted only)">
+        <div className="messages-stack">
+          <PersonRow name="Alex Morgan" note="Contact info shared on acceptance" />
+          <PersonRow name="Alex Morgan" contact="(647) 765-9872 or amorgan@uwo.ca" />
+          <PersonRow
+            name="Iris Lucky"
+            action={<span className="messages-code">action</span>}
+            note="Contact info shared on acceptance"
+          />
+        </div>
+      </Section>
+
+      <Section title="RouteHeader" note="departAt, origin, pickupPoint, destination, dropoffPoint, seats, badge">
+        <div className="messages-stack">
+          <RouteHeader
+            departAt={SAMPLE_DEPART}
+            origin="London"
+            pickupPoint="Western University"
+            destination="Toronto"
+            dropoffPoint="Union Station area"
+            seats={3}
+          />
+          <RouteHeader
+            departAt={SAMPLE_DEPART}
+            origin="London"
+            pickupPoint="Western University"
+            destination="Kitchener"
+            dropoffPoint="Downtown"
+            seats={1}
+            badge={<StatusBadge status="accepted" />}
+          />
+        </div>
+      </Section>
+
+      <Section title="PriceBanner" note="price (dollars), seats">
+        <PriceBanner price={15} seats={3} />
+      </Section>
+
+      <Section title="VehicleCard" note="colour, make, model, seats, plate">
+        <VehicleCard colour="Silver" make="Honda" model="Civic" seats={3} plate="CKRT 482" />
+      </Section>
+
+      <Section title="TripSummaryCard" note="origin, destination, departAt, badge, note">
+        <div className="messages-stack">
+          <TripSummaryCard origin="London" destination="Toronto" departAt={SAMPLE_DEPART} />
+          <TripSummaryCard
+            origin="London"
+            destination="Toronto"
+            departAt={SAMPLE_DEPART}
+            badge={<StatusBadge status="pending" label="Request pending" />}
+            note="You'll see updates under My trips."
+          />
         </div>
       </Section>
 

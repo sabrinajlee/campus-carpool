@@ -479,6 +479,219 @@ textarea.field__input {
   color: var(--color-primary);
 }
 
+/* ===== Person row (driver / rider) ===== */
+.person-row__main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.person-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.person-row__name {
+  font-weight: 600;
+}
+
+.person-row__verified {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.person-row__action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.person-row__footer {
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.person-row__footer--contact {
+  color: var(--color-success-text);
+}
+
+/* ===== Route header (top of ride details) ===== */
+.route-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.route-header__route {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0 var(--space-4);
+}
+
+.route-header__place {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.route-header__city {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.route-header__point {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.route-header__arrow {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-primary);
+}
+
+.route-header__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.route-header__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.route-header__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.route-header__value {
+  font-weight: 700;
+}
+
+/* ===== Price banner ===== */
+.price-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.price-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.price-banner__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.price-banner__seats {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.price-banner__price {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* ===== Vehicle card ===== */
+.vehicle-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.vehicle-card__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.vehicle-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vehicle-card__name {
+  font-weight: 600;
+}
+
+.vehicle-card__seats {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.vehicle-card__plate {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 2px var(--space-2);
+  border: 1.5px solid var(--color-text);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ===== Trip summary card (confirmation screens) ===== */
+.trip-summary__route {
+  margin: 0;
+  font-weight: 700;
+}
+
+.trip-summary__date {
+  margin: var(--space-1) 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.trip-summary__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.trip-summary__note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
 /* ===== Placeholder for unfinished pages ===== */
 .todo {
   padding: var(--space-4);

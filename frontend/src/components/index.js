@@ -10,3 +10,8 @@ export { default as Avatar } from "./Avatar.jsx";
 export { default as DateChip } from "./DateChip.jsx";
 export { default as RouteTimeline } from "./RouteTimeline.jsx";
 export { default as Alert } from "./Alert.jsx";
+export { default as PersonRow } from "./PersonRow.jsx";
+export { default as RouteHeader } from "./RouteHeader.jsx";
+export { default as PriceBanner } from "./PriceBanner.jsx";
+export { default as VehicleCard } from "./VehicleCard.jsx";
+export { default as TripSummaryCard } from "./TripSummaryCard.jsx";
