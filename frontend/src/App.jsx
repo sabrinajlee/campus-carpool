@@ -8,6 +8,7 @@ import Explore from "./pages/Explore.jsx";
 import RideDetails from "./pages/RideDetails.jsx";
 import RequestSent from "./pages/RequestSent.jsx";
 import RideCancelled from "./pages/RideCancelled.jsx";
+import RideCompleted from "./pages/RideCompleted.jsx";
 import PostRide from "./pages/PostRide.jsx";
 import PickupDropoff from "./pages/PickupDropoff.jsx";
 import MyTrips from "./pages/MyTrips.jsx";
@@ -41,8 +42,9 @@ export default function App() {
 
       {/* With bottom nav */}
         <Route element={<RequireAuth />}>
-            {/* Confirmation screens: logged in, no bottom nav */}
+            {/* No bottom nav, but needs login */}
             <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
+            <Route path="/rides/:id/complete" element={<RideCompleted />} />
 
             {/* Landing: Travel preferences while onboarding, else Explore */}
             <Route path="/" element={<Landing />}>
