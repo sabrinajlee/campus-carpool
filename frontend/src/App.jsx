@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout.jsx";
 
 import Login from "./pages/Login.jsx";
@@ -8,6 +8,8 @@ import Explore from "./pages/Explore.jsx";
 import RideDetails from "./pages/RideDetails.jsx";
 import RequestSent from "./pages/RequestSent.jsx";
 import RidePosted from "./pages/RidePosted.jsx";
+import RideCancelled from "./pages/RideCancelled.jsx";
+import RideCompleted from "./pages/RideCompleted.jsx";
 import PostRide from "./pages/PostRide.jsx";
 import PickupDropoff from "./pages/PickupDropoff.jsx";
 import MyTrips from "./pages/MyTrips.jsx";
@@ -17,6 +19,7 @@ import Profile from "./pages/Profile.jsx";
 import BasicInfo from "./pages/BasicInfo.jsx";
 import CarDetails from "./pages/CarDetails.jsx";
 import TravelPreferences from "./pages/TravelPreferences.jsx";
+import ErrorPage from "./pages/ErrorPage.jsx";
 import RequireAuth from "./auth/RequireAuth.jsx";
 import { useAuth } from "./auth/AuthContext.jsx";
 
@@ -38,11 +41,14 @@ export default function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/rides/:id/requested" element={<RequestSent />} />
+      <Route path="/error" element={<ErrorPage />} />
 
       {/* With bottom nav */}
         <Route element={<RequireAuth />}>
-            {/* No bottom nav, logged in only */}
+            {/* No bottom nav, but needs login */}
             <Route path="/rides/:id/posted" element={<RidePosted />} />
+            <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
+            <Route path="/rides/:id/complete" element={<RideCompleted />} />
 
             {/* Landing: Travel preferences while onboarding, else Explore */}
             <Route path="/" element={<Landing />}>
@@ -62,7 +68,8 @@ export default function App() {
           </Route>
         </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Any unknown URL */}
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 }

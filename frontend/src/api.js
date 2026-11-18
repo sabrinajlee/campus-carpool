@@ -39,5 +39,27 @@ export async function apiPost(path, body) {
 export const getMyVehicle = () => apiGet("/api/me/vehicle");
 export const saveMyVehicle = (vehicle) => apiPost("/api/me/vehicle", vehicle);
 
-// Ride posted. GET /api/rides/<id> is in docs/api-spec.md (draft) but not in the backend yet.
-export const getRide = (id) => apiGet(`/api/rides/${id}`);
+// Was your ride completed? GET /rides/<id> is in docs/api-spec.md (draft).
+// PROPOSED: PATCH /requests/<id>/complete marks my accepted request as completed.
+// Not in docs/api-spec.md or the backend yet, and needs request status `completed`.
+async function apiPatch(path, body) {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(
+      res.status,
+      data.error?.code ?? "UNKNOWN",
+      data.error?.message ?? "Something went wrong. Please try again."
+    );
+  }
+  return data;
+}
+
+// GET /api/rides/<id> returns { "ride": {...} } (same wrapping as { "user": ... }); this returns the ride itself.
+export const getRide = (id) => apiGet(`/api/rides/${id}`).then((data) => data.ride);
+export const completeRequest = (requestId) => apiPatch(`/api/requests/${requestId}/complete`);

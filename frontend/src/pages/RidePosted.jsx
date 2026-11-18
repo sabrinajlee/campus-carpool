@@ -8,7 +8,8 @@ import "./RidePosted.css";
 // Pickup & drop-off should get here with
 //   navigate(`/rides/${ride.id}/posted`, { replace: true, state: { ride } })
 // passing the ride returned by POST /api/rides. Without that state (a refresh or a
-// direct link), the page loads the ride from GET /api/rides/:id, which returns:
+// direct link), the page loads the ride from GET /api/rides/:id, which returns
+// { "ride": {...} } (getRide unwraps "ride"). The ride:
 //
 // { "id": 4, "origin": "London", "destination": "Toronto",
 //   "depart_at": "2026-11-13T21:30:00Z", "pickup_point": "Masonville Mall",
