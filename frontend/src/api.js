@@ -38,3 +38,6 @@ export async function apiPost(path, body) {
 // GET returns { vehicle: {...} | null }. POST saves the vehicle (make, model, colour, plate, seats).
 export const getMyVehicle = () => apiGet("/api/me/vehicle");
 export const saveMyVehicle = (vehicle) => apiPost("/api/me/vehicle", vehicle);
+
+// Ride posted. GET /api/rides/<id> is in docs/api-spec.md (draft) but not in the backend yet.
+export const getRide = (id) => apiGet(`/api/rides/${id}`);
