@@ -16,7 +16,7 @@ import "./RideCancelled.css";
 //   });
 //
 // If the ride isn't in state (page refreshed or opened directly), it's loaded from
-// GET /api/rides/:id, which returns (fields from the rides table):
+// GET /api/rides/:id, which returns (fields from the rides table; getRide unwraps "ride"):
 //
 // { "ride": { "id": 4, "origin": "London", "destination": "Toronto",
 //             "depart_at": "2026-11-13T21:30:00Z", "status": "cancelled", ... } }
@@ -51,7 +51,7 @@ export default function RideCancelled() {
   const [ride, setRide] = useState(state?.ride ?? null);
   const [error, setError] = useState("");
 
-  const fetchRide = useCallback(async () => (USE_SAMPLE_DATA ? SAMPLE_RIDE : (await getRide(id)).ride), [id]);
+  const fetchRide = useCallback(async () => (USE_SAMPLE_DATA ? SAMPLE_RIDE : await getRide(id)), [id]);
   const showError = () => setError("Couldn't load the trip details.");
 
   useEffect(() => {
