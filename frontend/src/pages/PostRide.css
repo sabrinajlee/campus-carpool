@@ -6,66 +6,24 @@
   margin-top: var(--space-4);
 }
 
-.post-ride-input .field__input {
-  height: 52px;
-  padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
-}
-
 .post-ride-half {
   max-width: 50%;
 }
 
+/* Matches the shared .field__input so the price row lines up with the text fields. */
 .post-ride-box {
   display: flex;
   align-items: center;
-  height: 52px;
-  padding: 0 var(--space-4);
+  height: 44px;
+  padding: 0 var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 }
 
 .post-ride-box--focused {
   outline: 2px solid var(--color-primary);
   outline-offset: -1px;
-}
-
-.post-ride-stepper-label {
-  font-weight: 600;
-}
-
-.post-ride-stepper-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-left: auto;
-}
-
-.post-ride-stepper-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  cursor: pointer;
-}
-
-.post-ride-stepper-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.post-ride-stepper-value {
-  min-width: 20px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 700;
 }
 
 .post-ride-price-box {
@@ -85,7 +43,4 @@
 
 .btn.post-ride-submit {
   margin-top: var(--space-2);
-  min-height: 52px;
-  border-radius: var(--radius-md);
-  font-size: 16px;
 }

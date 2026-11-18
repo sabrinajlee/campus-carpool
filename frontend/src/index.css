@@ -293,6 +293,67 @@ textarea.field__input {
   margin-bottom: -10px;
 }
 
+/* ===== Number stepper ===== */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.stepper__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stepper__title {
+  font-weight: 600;
+}
+
+.stepper__subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.stepper__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: auto;
+}
+
+.stepper__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.stepper__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper__value {
+  min-width: 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 /* ===== Placeholder for unfinished pages ===== */
 .todo {
   padding: var(--space-4);
