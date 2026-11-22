@@ -54,13 +54,6 @@ import "./RideDetails.css";
 // { "requests": [{ "id": 31, "status": "pending",
 //                  "rider": { "id": 20, "name": "Iris Lucky", "phone": null, "email": null } }] }
 // rider.phone / rider.email are only filled in once the request is accepted.
-//
-// Actions (docs/api-spec.md):
-//   Request a seat        POST  /api/rides/:id/requests          (requestSeat)
-//   Cancel ride (rider)   PATCH /api/requests/:my_request.id/cancel  (cancelRequest)
-//   Cancel ride (driver)  PATCH /api/rides/:id/cancel            (cancelRide)
-//   Accept / Decline      PATCH /api/requests/:id/accept | /decline  (acceptRequest, declineRequest)
-//   Remove                PATCH /api/requests/:id/remove         (removeRider; status becomes "removed")
 
 // ---------- Sample data for testing ----------
 // While USE_SAMPLE_DATA is true, the rides below are shown instead of calling the

@@ -6,13 +6,9 @@ import "./PickupDropoff.css";
 
 // Step 2 of "Post a ride". Step 1 (PostRide.jsx) sends its data with
 // navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, price_per_seat } })
-// depart_at and arrive_at are local times without a timezone ("2026-11-13T16:30:00").
-//
-// Post ride calls POST /api/rides, which returns 201 { ride } (postRide unwraps it), then goes to
-//   navigate(`/rides/${ride.id}/posted`, { replace: true, state: { ride } })
-// replace keeps Back from returning to this form and posting the ride twice.
+// Post ride calls POST /api/rides, then replaces history with /rides/:id/posted so Back can't post twice.
 
-// Local "2026-11-13T16:30:00" → UTC ISO string for the API. null stays null.
+// Step 1's local "2026-11-13T16:30:00" → UTC ISO string for the API. null stays null.
 function toIso(localDateTime) {
   return localDateTime ? new Date(localDateTime).toISOString() : null;
 }

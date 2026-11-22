@@ -8,9 +8,8 @@ import "./BasicInfo.css";
 // Basic information (/profile/basic-info).
 // Onboarding (user.phone is null): name can still be set, button says Continue and goes to /.
 // From My profile: name is read-only, button says Save Changes and goes back to /profile.
-// Saves with PATCH /api/me { name?, phone }, which returns { user } (not built in the backend yet).
-// The returned user goes into the auth context, so "/" sees the new phone number and shows
-// Explore instead of Travel preferences (onboarding ends once user.phone is set).
+// Saves with PATCH /api/me { name?, phone } and puts the returned user in the auth context,
+// so "/" sees the phone number and shows Explore (onboarding ends once user.phone is set).
 
 function digitsOnly(value) {
   return value.replace(/\D/g, "");

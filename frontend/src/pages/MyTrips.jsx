@@ -41,7 +41,7 @@ function daysFromNow(days, hour, minute = 0) {
 const SAMPLE_TRIPS = {
   driving: [
     {
-      // Ids 5 and 10 match the driver's sample rides in RideDetails.jsx, so these cards open them.
+      // Ids 5 and 10 match the driver's sample rides in RideDetails.jsx.
       id: 5, origin: "London", destination: "Toronto", depart_at: daysFromNow(3, 16, 30),
       status: "open", max_seats: 3, pending_requests: 1, passengers: ["Alex", "Jordan"],
     },
@@ -107,14 +107,12 @@ function DrivingBadge({ trip }) {
   return <StatusBadge status="seats" count={trip.max_seats - taken} />;
 }
 
-// An accepted rider on a ride that has left (and wasn't cancelled) is asked if it was completed.
-// Once they answer, request_status is "completed" and the card opens Ride details again.
+// A past trip I was accepted on asks "Was your ride completed?" until I answer.
 function needsCompletion(trip) {
   return trip.request_status === "accepted" && trip.status !== "cancelled" && new Date(trip.depart_at) < new Date();
 }
 
-// Every card opens Ride details (drivers get the driver's view of their own ride there),
-// except a past accepted riding trip, which asks "Was your ride completed?" first.
+// Both tabs open Ride details (drivers get the driver's view there).
 function tripLink(trip, tab) {
   return tab === "riding" && needsCompletion(trip) ? `/rides/${trip.id}/complete` : `/rides/${trip.id}`;
 }

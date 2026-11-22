@@ -60,7 +60,6 @@ Needed by endpoints in `docs/api-spec.md` that the frontend already calls:
 | `rides.arrive_at` (`timestamptz`, nullable) | Post a ride collects an estimated arrival time and `POST /rides` sends it |
 | `ride_requests.status`: add `removed` and `completed` | `PATCH /requests/<id>/remove` (driver takes an accepted rider off) and `PATCH /requests/<id>/complete` (rider confirms the trip) |
 | New `vehicles` table: `id`, `user_id` (FK, unique), `make`, `model`, `colour`, `plate`, `seats` (1 to 7) | `GET`/`PUT /me/vehicle`. One vehicle per user. |
-| `users.contact_pref`: decide on `in_app` | CLAUDE.md lists in-app, email or phone; the constraint only allows `email` and `phone` |
 
 ## Constraints
 

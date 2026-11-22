@@ -1,18 +1,9 @@
 import { mockGetRide, mockRequestSeat, mockSearchRides } from "./mocks/rides.js";
 
 // Every backend call goes through this file (auth calls are in auth/authApi.js).
-// Endpoints, request bodies, response shapes and error codes: docs/api-spec.md.
-//
-// URL conventions (docs/decisions/0002-api-url-conventions.md):
-//   /api/auth/*     session and account setup (built)
-//   /api/me/*       the logged-in user's own data (profile, vehicle, trips)
-//   /api/rides      rides, and the requests on a ride
-//   /api/requests   one request; status changes are PATCH /<resource>/<id>/<action>
-// Responses wrap the object in a named key ({ ride }, { rides }, { request }, ...).
-// The functions below unwrap it, so pages get the object itself.
-//
-// Every helper throws ApiError, so pages can check err.status (e.g. 404 → /error)
-// and err.code (e.g. "RIDE_FULL") instead of parsing messages.
+// URL conventions, bodies, response shapes and error codes: docs/api-spec.md.
+// The functions unwrap the response key ({ ride } → ride), and every call throws
+// ApiError, so pages can check err.status (404 → /error) and err.code ("RIDE_FULL").
 
 const API_URL = import.meta.env.VITE_API_URL;
 

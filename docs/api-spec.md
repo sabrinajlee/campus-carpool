@@ -119,7 +119,7 @@ Who is logged in right now. Call this when the app loads to know if the user is 
 | Method | Endpoint | Description | `api.js` function | Used by | Auth |
 |---|---|---|---|---|---|
 | PATCH | `/me` | Update my name (onboarding only) and phone | `updateMe` | Basic information | 🔒 |
-| GET | `/me/vehicle` | My vehicle, or `null` | `getMyVehicle` | Car details, Post a ride | 🔒 |
+| GET | `/me/vehicle` | My vehicle, or `null` | `getMyVehicle` | Car details (Post a ride's vehicle check, not built yet) | 🔒 |
 | PUT | `/me/vehicle` | Create or replace my vehicle | `saveMyVehicle` | Car details | 🔒 |
 | GET | `/me/trips` | My trips: driving + riding | `getMyTrips` | My trips | 🔒 |
 | GET | `/rides?destination=&departs_after=&departs_before=` | Search open rides (hides full, cancelled, past) | `searchRides` | Explore | 🔒 |
@@ -205,7 +205,7 @@ Every endpoint that returns a ride uses this shape, as seen by the logged-in use
 - `seats_left` = `max_seats` minus accepted requests.
 - `is_own`: the logged-in user is the driver. Ride details then shows the driver's view and loads `GET /rides/<id>/requests`.
 - `my_request`: the logged-in user's request on this ride, or `null` (seen from Explore). Ride details and Was your ride completed? use its `id` for `/cancel` and `/complete`.
-- `driver.phone`, `driver.email` and `vehicle` (`colour`, `make`, `model`, `plate`, `seats`): only when `my_request.status` is `accepted`, or for the driver themselves. Otherwise `null`.
+- `driver.phone`, `driver.email` and `vehicle` (`colour`, `make`, `model`, `plate`, `seats`): see [Who sees contact info](#who-sees-contact-info).
 
 ### GET `/rides?destination=&departs_after=&departs_before=` 🔒
 

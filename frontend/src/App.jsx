@@ -43,7 +43,7 @@ export default function App() {
 
       {/* Needs login */}
       <Route element={<RequireAuth />}>
-        {/* No bottom nav: confirmation screens (/rides/:id/<past tense>) and the completion question */}
+        {/* No bottom nav */}
         <Route path="/rides/:id/requested" element={<RequestSent />} />
         <Route path="/rides/:id/posted" element={<RidePosted />} />
         <Route path="/rides/:id/cancelled" element={<RideCancelled />} />
@@ -56,7 +56,6 @@ export default function App() {
 
         {/* With bottom nav */}
         <Route element={<AppLayout />}>
-          {/* Ride details: the rider's view, or the driver's view of their own ride (requests, confirmed riders) */}
           <Route path="/rides/:id" element={<RideDetails />} />
           <Route path="/post" element={<PostRide />} />
           <Route path="/post/pickup" element={<PickupDropoff />} />

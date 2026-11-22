@@ -215,7 +215,7 @@ The driver's view replaces Your driver, Pickup & drop-off and the vehicle with *
 
 **Ride status:** `open`, `full`, `cancelled`, `completed`.
 
-**Request status:** `pending`, `accepted`, `declined`, `cancelled`. Planned, and needing a migration: `removed` (the driver took an accepted rider off) and `completed` (the rider confirmed the trip). A ride the driver cancels shows from the ride's own `status` (`cancelled`), so it doesn't need a request status.
+**Request status:** `pending`, `accepted`, `declined`, `cancelled`. Planned, and needing a migration: `removed` (the driver took an accepted rider off) and `completed` (the rider confirmed the trip). A ride the driver cancelled is shown from the ride's `status`.
 
 **Badges shown to users** (all from `StatusBadge`): N seats left (amber, pending; "Waiting for driver" on Ride details), Accepted, Declined, Cancelled, Removed, Completed, N Requests, Seats Filled.
 

@@ -5,8 +5,7 @@ const AuthContext = createContext(null);
 
 // Wrap the app with <AuthProvider> (in main.jsx). Then in any page:
 //   const { user, login, logout } = useAuth();
-// setUser stores a user the backend sent back after a change (e.g. PATCH /api/me),
-// so pages that read user (like onboarding, which checks user.phone) see it right away.
+// setUser stores a user the backend returns after a change (e.g. PATCH /api/me).
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
