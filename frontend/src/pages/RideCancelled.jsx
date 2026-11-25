@@ -5,7 +5,7 @@ import { Button, ConfirmationLayout, TripSummaryCard } from "../components";
 import "./RideCancelled.css";
 
 // Ride cancelled: terminal confirmation after a rider cancels their request (from /rides/:id)
-// or a driver cancels their ride (from /trips/:id/requests).
+// or a driver cancels their ride (also from /rides/:id, the driver's view).
 //
 // The page that cancels navigates here with replace and passes who cancelled and the ride:
 //

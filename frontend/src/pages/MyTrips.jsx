@@ -20,7 +20,8 @@ import "./MyTrips.css";
 // }
 //
 // driving[].status / riding[].status: rides.status (open, full, cancelled, completed)
-// riding[].request_status: ride_requests.status (pending, accepted, declined, cancelled)
+// riding[].id: the ride id; riding[].request_id: my ride_requests row
+// riding[].request_status: ride_requests.status (pending, accepted, declined, cancelled, removed, completed)
 // riding[].seats_left: seats still open on the ride (shown on pending requests)
 // driving[].passengers: names of riders whose request was accepted
 
@@ -40,12 +41,13 @@ function daysFromNow(days, hour, minute = 0) {
 const SAMPLE_TRIPS = {
   driving: [
     {
-      id: 1, origin: "London", destination: "Toronto", depart_at: daysFromNow(3, 16, 30),
-      status: "open", max_seats: 3, pending_requests: 1, passengers: [],
+      // Ids 5 and 10 match the driver's sample rides in RideDetails.jsx.
+      id: 5, origin: "London", destination: "Toronto", depart_at: daysFromNow(3, 16, 30),
+      status: "open", max_seats: 3, pending_requests: 1, passengers: ["Alex", "Jordan"],
     },
     {
-      id: 2, origin: "London", destination: "Kitchener", depart_at: daysFromNow(4, 9),
-      status: "full", max_seats: 3, pending_requests: 0, passengers: ["Allen", "Bobby", "Carmen"],
+      id: 10, origin: "London", destination: "Kitchener", depart_at: daysFromNow(4, 9),
+      status: "full", max_seats: 2, pending_requests: 0, passengers: ["Allen", "Bobby"],
     },
     {
       id: 3, origin: "London", destination: "Ottawa", depart_at: daysFromNow(10, 7),
@@ -105,9 +107,18 @@ function DrivingBadge({ trip }) {
   return <StatusBadge status="seats" count={trip.max_seats - taken} />;
 }
 
+// A past trip I was accepted on asks "Was your ride completed?" until I answer.
+function needsCompletion(trip) {
+  return trip.request_status === "accepted" && trip.status !== "cancelled" && new Date(trip.depart_at) < new Date();
+}
+
+// Both tabs open Ride details (drivers get the driver's view there).
+function tripLink(trip, tab) {
+  return tab === "riding" && needsCompletion(trip) ? `/rides/${trip.id}/complete` : `/rides/${trip.id}`;
+}
+
 function TripCard({ trip, tab }) {
-  // Drivers go to their request list; riders go to the ride itself.
-  const to = tab === "driving" ? `/trips/${trip.id}/requests` : `/rides/${trip.id}`;
+  const to = tripLink(trip, tab);
   const people =
     tab === "driving"
       ? `Passengers: ${trip.passengers?.length ? trip.passengers.join(", ") : "None"}`

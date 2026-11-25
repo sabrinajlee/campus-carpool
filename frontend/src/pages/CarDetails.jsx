@@ -12,9 +12,10 @@ import "./CarDetails.css";
 //   - the "add a vehicle first" dialog on /post: /profile/vehicle?next=/post, Save goes back to /post
 //   - My profile: Save goes back to /profile
 //
-// Data: GET /api/me/vehicle and POST /api/me/vehicle (PROPOSED: not in api-spec.md or the backend yet).
-// Expected response: { "vehicle": { "make": "Honda", "model": "Civic", "colour": "Silver",
-//                                   "plate": "CKRT 482", "seats": 3 } }  or  { "vehicle": null }
+// Data: GET /api/me/vehicle and PUT /api/me/vehicle (in docs/api-spec.md, not in the backend yet).
+// Response: { "vehicle": { "make": "Honda", "model": "Civic", "colour": "Silver",
+//                          "plate": "CKRT 482", "seats": 3 } }  or  { "vehicle": null }
+// getMyVehicle and saveMyVehicle unwrap "vehicle".
 // seats: default seats for riders (1 to 7). Post a ride can change it per trip.
 
 // ---------- Sample data for testing ----------
@@ -58,7 +59,7 @@ function safeNext(value) {
 }
 
 function loadVehicle() {
-  return USE_SAMPLE_DATA ? Promise.resolve(SAMPLE_VEHICLE) : getMyVehicle().then((data) => data.vehicle);
+  return USE_SAMPLE_DATA ? Promise.resolve(SAMPLE_VEHICLE) : getMyVehicle();
 }
 
 export default function CarDetails() {

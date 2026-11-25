@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { postRide } from "../api";
 import { Button, Card, PageHeader, TextInput } from "../components";
 import "./PickupDropoff.css";
 
 // Step 2 of "Post a ride". Step 1 (PostRide.jsx) sends its data with
-// navigate("/post/pickup", { state: { origin, destination, depart_at, max_seats, pricing_type, price } })
+// navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, price_per_seat } })
+// Post ride calls POST /api/rides, then replaces history with /rides/:id/posted so Back can't post twice.
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Step 1's local "2026-11-13T16:30:00" → UTC ISO string for the API. null stays null.
+function toIso(localDateTime) {
+  return localDateTime ? new Date(localDateTime).toISOString() : null;
+}
 
 function formatDepart(dateString) {
   const date = new Date(dateString);
@@ -17,22 +22,14 @@ function formatDepart(dateString) {
 }
 
 function formatPrice(trip) {
-  if (trip.price === undefined || trip.price === "") return "$XX/seat";
-  const value = Number(trip.price);
-  const amount = value.toFixed(value % 1 === 0 ? 0 : 2);
-  return trip.pricing_type === "total" ? `$${amount} total` : `$${amount}/seat`;
+  if (trip.price_per_seat === undefined || trip.price_per_seat === "") return "$XX/seat";
+  const value = Number(trip.price_per_seat);
+  return `$${value.toFixed(value % 1 === 0 ? 0 : 2)}/seat`;
 }
 
 export default function PickupDropoff() {
   const navigate = useNavigate();
-  const trip = useLocation().state ?? {
-  origin: "London",
-  destination: "Toronto",
-  depart_at: "2026-11-13T16:30:00",
-  max_seats: 3,
-  pricing_type: "per_seat",
-  price: 25,
-};
+  const trip = useLocation().state;
 
   const [pickup, setPickup] = useState("");
   const [dropoff, setDropoff] = useState("");
@@ -71,25 +68,20 @@ export default function PickupDropoff() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/rides`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...trip,
-          pickup_point: pickup.trim(),
-          dropoff_point: dropoff.trim(),
-          notes: notes.trim() || null,
-        }),
+      const ride = await postRide({
+        origin: trip.origin,
+        destination: trip.destination,
+        depart_at: toIso(trip.depart_at),
+        arrive_at: toIso(trip.arrive_at),
+        max_seats: trip.max_seats,
+        price_per_seat: trip.price_per_seat,
+        pickup_point: pickup.trim(),
+        dropoff_point: dropoff.trim(),
+        notes: notes.trim() || null,
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error?.message ?? "Couldn't post your ride. Try again.");
-      }
-      navigate("/trips");
+      navigate(`/rides/${ride.id}/posted`, { replace: true, state: { ride } });
     } catch (err) {
-      setSubmitError(err.message);
-    } finally {
+      setSubmitError(err.message || "Couldn't post your ride. Try again.");
       setSubmitting(false);
     }
   }

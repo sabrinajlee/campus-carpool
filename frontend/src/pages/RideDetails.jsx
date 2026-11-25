@@ -14,12 +14,14 @@ import {
     VehicleCard,
 } from "../components";
 import {
-    cancelMyRequest,
+    acceptRequest,
+    cancelRequest,
     cancelRide,
+    declineRequest,
     getRide,
     getRideRequests,
+    removeRider,
     requestSeat,
-    respondToRequest,
 } from "../api";
 import "./RideDetails.css";
 
@@ -137,8 +139,23 @@ async function loadRide(id) {
 
 // Error codes the backend should return from POST /api/rides/:id/requests.
 const REQUEST_ERRORS = {
-    ride_full: "This ride just filled up.",
-    ride_cancelled: "This ride was cancelled by the driver.",
+    RIDE_FULL: "This ride just filled up.",
+    RIDE_CANCELLED: "This ride was cancelled by the driver.",
+};
+
+// Rider's request statuses that make the page read-only (no Request a seat or Cancel ride).
+const READ_ONLY_MESSAGES = {
+    declined: "The driver declined your request.",
+    cancelled: "You cancelled your request for this ride.",
+    removed: "The driver removed you from this ride.",
+    completed: "You completed this ride.",
+};
+
+// Driver actions on one request: the API call and the status it leaves the request in.
+const REQUEST_ACTIONS = {
+    accept: { call: acceptRequest, status: "accepted" },
+    decline: { call: declineRequest, status: "declined" },
+    remove: { call: removeRider, status: "removed" },
 };
 
 // "(647) 765-9872 or amorgan@uwo.ca", or whichever one the person has.
@@ -269,14 +286,14 @@ export default function RideDetails() {
             // Confirmation screens replace history so Back can't resubmit.
             navigate(`/rides/${ride.id}/requested`, { replace: true, state: { ride } });
         } catch (err) {
-            if (err.code === "already_requested") {
+            if (err.code === "ALREADY_REQUESTED") {
                 setReloadKey((k) => k + 1); // reload shows the pending state
             } else if (err.code in REQUEST_ERRORS) {
                 setActionError(REQUEST_ERRORS[err.code]);
                 setRide((r) => ({
                     ...r,
-                    status: err.code === "ride_full" ? "full" : "cancelled",
-                    seats_left: err.code === "ride_full" ? 0 : r.seats_left,
+                    status: err.code === "RIDE_FULL" ? "full" : "cancelled",
+                    seats_left: err.code === "RIDE_FULL" ? 0 : r.seats_left,
                 }));
             } else {
                 setActionError("Couldn't send your request. Please try again.");
@@ -293,7 +310,7 @@ export default function RideDetails() {
         try {
             if (isSample) await wait(300);
             else if (ride.is_own) await cancelRide(ride.id);
-            else await cancelMyRequest(ride.my_request.id);
+            else await cancelRequest(ride.my_request.id);
             navigate(`/rides/${ride.id}/cancelled`, {
                 replace: true,
                 state: { cancelledBy: ride.is_own ? "driver" : "rider", ride },
@@ -305,8 +322,9 @@ export default function RideDetails() {
         }
     }
 
-    // Driver accepts, declines or removes one request.
-    async function handleRespond(request, newStatus) {
+    // Driver accepts, declines or removes one request. action: "accept" | "decline" | "remove".
+    async function handleRespond(request, action) {
+        const { call, status: newStatus } = REQUEST_ACTIONS[action];
         setBusyRequestId(request.id);
         setActionError("");
         try {
@@ -316,7 +334,7 @@ export default function RideDetails() {
                 const contact = newStatus === "accepted" ? SAMPLE_CONTACTS[request.rider.id] : {};
                 updated = { ...request, status: newStatus, rider: { ...request.rider, ...contact } };
             } else {
-                updated = await respondToRequest(request.id, newStatus);
+                updated = await call(request.id);
             }
             // Accepting takes a seat; removing an accepted rider gives it back.
             const seatChange =
@@ -333,7 +351,7 @@ export default function RideDetails() {
             setConfirm(null);
         } catch (err) {
             setConfirm(null);
-            if (err.code === "no_seats_left") {
+            if (err.code === "NO_SEATS_LEFT") {
                 setActionError("No seats left. The request is still pending.");
                 setRide((r) => ({ ...r, seats_left: 0, status: "full" }));
             } else {
@@ -415,7 +433,7 @@ export default function RideDetails() {
                                                         tone="danger"
                                                         label={`Decline ${name}`}
                                                         disabled={busy}
-                                                        onClick={() => handleRespond(request, "declined")}
+                                                        onClick={() => handleRespond(request, "decline")}
                                                     >
                                                         <X size={16} />
                                                     </RoundButton>
@@ -423,7 +441,7 @@ export default function RideDetails() {
                                                         tone="success"
                                                         label={isFull ? `No seats left to accept ${name}` : `Accept ${name}`}
                                                         disabled={busy || isFull}
-                                                        onClick={() => handleRespond(request, "accepted")}
+                                                        onClick={() => handleRespond(request, "accept")}
                                                     >
                                                         <Check size={16} />
                                                     </RoundButton>
@@ -515,14 +533,10 @@ export default function RideDetails() {
                 </Button>
             );
         }
-        if (requestStatus === "declined" || requestStatus === "cancelled") {
+        if (requestStatus in READ_ONLY_MESSAGES) {
             return (
                 <>
-                    <Alert type="info">
-                        {requestStatus === "declined"
-                            ? "The driver declined your request."
-                            : "You cancelled your request for this ride."}
-                    </Alert>
+                    <Alert type="info">{READ_ONLY_MESSAGES[requestStatus]}</Alert>
                     <Button variant="secondary" fullWidth onClick={() => navigate("/")}>
                         Back to explore
                     </Button>
@@ -559,7 +573,7 @@ export default function RideDetails() {
                     confirmLabel={`Remove ${name}`}
                     cancelLabel="Keep rider"
                     busy={busyRequestId === confirm.request.id}
-                    onConfirm={() => handleRespond(confirm.request, "declined")}
+                    onConfirm={() => handleRespond(confirm.request, "remove")}
                     onClose={() => setConfirm(null)}
                 />
             );

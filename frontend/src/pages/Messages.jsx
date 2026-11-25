@@ -199,7 +199,7 @@ export default function Messages() {
           <PersonRow name="Alex Morgan" contact="(647) 765-9872 or amorgan@uwo.ca" />
           <PersonRow
             name="Iris Lucky"
-            action={<span className="messages-placeholder">Accept / decline buttons (built by Manage requests)</span>}
+            action={<span className="messages-placeholder">Accept / decline buttons (built by Ride details)</span>}
             note="Contact info shared on acceptance"
           />
         </div>

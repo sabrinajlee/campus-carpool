@@ -4,7 +4,8 @@ import { Button, NumberStepper, PageHeader, TextInput } from "../components";
 import "./PostRide.css";
 
 // Step 1 of "Post a ride". Sends the trip to step 2 (PickupDropoff.jsx) as
-// navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, pricing_type, price } })
+// navigate("/post/pickup", { state: { origin, destination, depart_at, arrive_at, max_seats, price_per_seat } })
+// Field names match the POST /api/rides body in docs/api-spec.md. Nothing is saved until step 2.
 
 const MIN_SEATS = 1;
 const MAX_SEATS = 7;
@@ -26,7 +27,7 @@ function initialForm(draft) {
     departTime: departTime.slice(0, 5),
     arriveTime: draft?.arrive_at?.split("T")[1]?.slice(0, 5) ?? "",
     seats: draft?.max_seats ?? 3,
-    price: draft?.price !== undefined ? String(draft.price) : "",
+    price: draft?.price_per_seat !== undefined ? String(draft.price_per_seat) : "",
   };
 }
 
@@ -86,8 +87,7 @@ export default function PostRide() {
       depart_at: `${form.date}T${form.departTime}:00`,
       arrive_at: form.arriveTime ? `${form.date}T${form.arriveTime}:00` : null,
       max_seats: form.seats,
-      pricing_type: "per_seat",
-      price: Number(form.price),
+      price_per_seat: Number(form.price),
     };
 
     // Save the draft on this history entry so "back" from step 2 keeps the form filled in.

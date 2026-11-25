@@ -9,7 +9,7 @@ import "./RequestSent.css";
 //   navigate(`/rides/${ride.id}/requested`, { replace: true, state: { ride } })
 // passing the ride it already has, so Back can't resubmit the request. Without that
 // state (a refresh or a direct link), the page loads the ride from GET /api/rides/:id,
-// which returns:
+// which returns { "ride": {...} } (getRide unwraps "ride"). The ride (full shape in docs/api-spec.md):
 //
 // { "id": 4, "origin": "London", "destination": "Toronto",
 //   "depart_at": "2026-11-13T21:30:00Z", "pickup_point": "Masonville Mall",

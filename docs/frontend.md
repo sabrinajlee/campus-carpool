@@ -54,7 +54,9 @@ Use these page titles everywhere (Figma frames, tickets, branch names) so everyo
 
 **Not routed:** Ride history and Connections are later features (rows on My profile only). Settings and Public profile were cut. Manage requests was merged into Ride details: the driver manages requests on `/rides/:id`. The confirm cancel and "add a vehicle first" dialogs are `ConfirmDialog` states of the pages that open them.
 
-**Route changes still to make:** add the new routes above, and replace the `*` redirect with `ErrorPage`. Remove the `/trips/:id/requests` route and the `ManageRequests.jsx` stub, and point My trips' Driving cards at `/rides/:id`.
+**Login:** every route except `/login`, `/signup`, `/check-email`, `/forgot-password`, `/reset-password` and `/error` is inside `RequireAuth`, including all four `/rides/:id/...` confirmation screens (they load the ride from a login-only endpoint).
+
+**Route changes still to make in `App.jsx`:** add `/forgot-password` and `/reset-password`.
 
 ## Rules to avoid merge conflicts
 
@@ -149,6 +151,22 @@ Nothing happens when the departure time passes. When a rider taps a past trip on
 
 `/profile` → Basic information (`/profile/basic-info`) or Car details (`/profile/vehicle`), each returning to `/profile` on save. **Logout** ends the session → `/login`.
 
+### Routes and API calls by flow
+
+Every call is a function in `src/api.js` (details in `docs/api-spec.md`). `:id` is always a ride id. `:rid` is a request id, taken from `ride.my_request.id` (rider) or the list from `GET /rides/:id/requests` (driver). Every arrow to a confirmation screen uses `{ replace: true }`.
+
+| Flow | Route → API call → next route |
+|---|---|
+| Sign up | `/signup` → `POST /auth/signup` → `/check-email` (state: `email`) → email link `GET /auth/verify/<token>` → `/login?verify=...` → `POST /auth/login` → `/` |
+| Onboarding | `/` (Travel preferences) → "I can drive": `/profile/vehicle` → `PUT /me/vehicle` (or Skip) → `/profile/basic-info` → `PATCH /me` → `setUser(user)` in `AuthContext` → `/` (Explore) |
+| Find and request | `/` → `GET /rides?destination=&departs_after=&departs_before=` → `/rides/:id` → `GET /rides/:id` → `POST /rides/:id/requests` → `/rides/:id/requested` (state: `{ ride }`) → `/trips` or `/` |
+| Post a ride | `/post` → `GET /me/vehicle` (none: dialog → `/profile/vehicle?next=/post`) → `/post/pickup` (state: step 1 data) → `POST /rides` → `/rides/:id/posted` (state: `{ ride }`) → `/trips?tab=driving` or `/` |
+| Handle requests | `/trips?tab=driving` → `/rides/:id` (driver's view, `ride.is_own`) → `GET /rides/:id` + `GET /rides/:id/requests` → `PATCH /requests/:rid/accept`, `/decline` or `/remove` (confirm first) → stays on the page and updates the lists and seats |
+| Driver cancels | `/rides/:id` (driver's view) → confirm → `PATCH /rides/:id/cancel` → `/rides/:id/cancelled` (state: `{ cancelledBy: "driver", ride }`) → `/trips?tab=driving` |
+| Rider cancels | `/trips` → `/rides/:id` → confirm → `PATCH /requests/:rid/cancel` → `/rides/:id/cancelled` (state: `{ cancelledBy: "rider", ride }`) → `/trips` |
+| Completion | `/trips` (an accepted riding trip that has left) → `/rides/:id/complete` → `GET /rides/:id` → `PATCH /requests/:rid/complete` → `/trips` |
+| Profile | `/profile` → `/profile/basic-info` (`PATCH /me`) or `/profile/vehicle` (`PUT /me/vehicle`) → `/profile`. Logout: `POST /auth/logout` → `/login` |
+
 ### Guards (every page)
 
 - Logged out on any page except login, sign up, check email, forgot or reset password: go to `/login`, then come back to that page after logging in. The same applies when a session expires mid-action and when a user opens a link from an email.
@@ -168,7 +186,7 @@ Nothing happens when the departure time passes. When a rider taps a past trip on
 9. **Dates and times.** The backend stores UTC. The frontend displays local time.
 10. **Deep links.** Emails link to specific pages (see [Statuses and emails](#statuses-and-emails)). A logged-out user goes to `/login` and then on to the target.
 11. **Buttons.** A primary button is disabled until every *required* field on the screen is valid, with a short reason under the field. After a tap, disable it and show loading so nothing is sent twice. The server re-checks everything. See [Button rules](#button-rules).
-12. **Data model gaps.** `GET /api/me/trips` must return `seats_left` on riding trips (the pending badge shows it). The `rides` table has no estimated arrival time yet (Post a ride collects it, but it isn't saved). Request status has no `completed` or "cancelled by driver" value yet, and `/rides/:id/complete` and the "cancelled by driver" banner both depend on those.
+12. **Data model gaps.** `GET /api/me/trips` must return `seats_left` on riding trips (the pending badge shows it). The database still needs `rides.arrive_at`, the `removed` and `completed` request statuses, and a `vehicles` table. See "Planned changes" in `docs/erd.md`.
 13. **Out of the MVP:** ratings, problem reports, ride history, connections, in-app chat, settings, payments, saved routes. Completed! should still save each completion (ride, driver, rider, time) so history can be built from real data later.
 14. **Naming.** Use the page titles from the table in Figma frames, tickets and branch names (for example `feature/manage-requests`) so everyone means the same screen.
 
@@ -184,9 +202,10 @@ Ride details is one page with many states. Check this table before changing `/ri
 | Rider | none | full | `/rides/:id`, full | none (greyed "Ride full") | No |
 | Rider | pending | open or full | `/rides/:id`, pending ("Waiting for driver") | Cancel ride | No |
 | Rider | accepted | open or full | `/rides/:id`, accepted | Cancel ride | Yes |
-| Rider | declined | any | `/rides/:id`, read-only | none | No |
+| Rider | declined, cancelled or removed | any | `/rides/:id`, read-only | none | No |
 | Rider | any | cancelled by driver | `/rides/:id`, read-only with a banner | none | No |
 | Rider | accepted | in the past | `/rides/:id/complete`, then read-only | Completed! | Yes |
+| Rider | completed | any | `/rides/:id`, read-only | none | Yes |
 | Driver (their own ride) | n/a | open or full | `/rides/:id`, driver's view | Cancel ride | Rider contact, accepted riders only |
 | Driver (their own ride) | n/a | cancelled | `/rides/:id`, read-only | none | No |
 
@@ -196,9 +215,9 @@ The driver's view replaces Your driver, Pickup & drop-off and the vehicle with *
 
 **Ride status:** `open`, `full`, `cancelled`, `completed`.
 
-**Request status:** `pending`, `accepted`, `declined`, `cancelled`. Planned, and needing a migration: `completed`, and a separate "cancelled by driver" value.
+**Request status:** `pending`, `accepted`, `declined`, `cancelled`. Planned, and needing a migration: `removed` (the driver took an accepted rider off) and `completed` (the rider confirmed the trip). A ride the driver cancelled is shown from the ride's `status`.
 
-**Badges shown to users** (all from `StatusBadge`): N seats left (amber, pending; "Waiting for driver" on Ride details), Accepted, Declined, Cancelled, Completed, N Requests, Seats Filled.
+**Badges shown to users** (all from `StatusBadge`): N seats left (amber, pending; "Waiting for driver" on Ride details), Accepted, Declined, Cancelled, Removed, Completed, N Requests, Seats Filled.
 
 | Trigger | Emailed to | Link opens |
 |---|---|---|
@@ -292,8 +311,8 @@ Write these once. Don't write a copy per page.
 
 | Piece | Where | What it does |
 |---|---|---|
-| API client | `src/api.js` (auth calls in `src/auth/authApi.js`) | Every backend call, the standard error shape, and a redirect to `/login` on a 401 |
-| Auth context and guard | `src/auth/AuthContext.jsx`, `src/auth/RequireAuth.jsx` | The logged-in user (including `phone`, used for onboarding mode), protected routes, and returning to the wanted page after login |
+| API client | `src/api.js` (auth calls in `src/auth/authApi.js`) | Every backend call (one function per endpoint in `docs/api-spec.md`), all throwing `ApiError` with `status`, `code` and `message`. Redirecting to `/login` on a 401 is still to add. |
+| Auth context and guard | `src/auth/AuthContext.jsx`, `src/auth/RequireAuth.jsx` | The logged-in user (including `phone`, used for onboarding mode), `setUser` for a user the backend returns after a change, protected routes, and returning to the wanted page after login |
 | Formatters | `src/format.js` | Dates, times and prices. See [Formatting](#formatting). Masked email still to add. |
 | Validators | to add | School email, password, phone, licence plate, price. The same functions decide when a button is disabled. |
 | Constants | to add | School name and email domain, support email, cooldown lengths |

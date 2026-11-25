@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { updateMe } from "../api";
 import { Alert, Button, PageHeader, TextInput } from "../components";
 import { useAuth } from "../auth/AuthContext.jsx";
 import "./BasicInfo.css";
@@ -7,9 +8,8 @@ import "./BasicInfo.css";
 // Basic information (/profile/basic-info).
 // Onboarding (user.phone is null): name can still be set, button says Continue and goes to /.
 // From My profile: name is read-only, button says Save Changes and goes back to /profile.
-// Saves with PATCH /api/auth/me { name?, phone } — endpoint not built in the backend yet.
-
-const API_URL = import.meta.env.VITE_API_URL;
+// Saves with PATCH /api/me { name?, phone } and puts the returned user in the auth context,
+// so "/" sees the phone number and shows Explore (onboarding ends once user.phone is set).
 
 function digitsOnly(value) {
   return value.replace(/\D/g, "");
@@ -26,7 +26,7 @@ function validate(form, onboarding) {
 
 export default function BasicInfo() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const onboarding = !user?.phone;
 
   const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "" });
@@ -55,13 +55,7 @@ export default function BasicInfo() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`PATCH /api/auth/me failed: ${res.status}`);
+      setUser(await updateMe(body));
       navigate(onboarding ? "/" : "/profile", { replace: onboarding });
     } catch {
       setSubmitError("Couldn't save your details. Try again.");

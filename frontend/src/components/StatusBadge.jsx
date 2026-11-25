@@ -11,6 +11,7 @@ const STATUSES = {
   accepted: { label: "Accepted", tone: "success" },
   declined: { label: "Declined", tone: "danger" },
   cancelled: { label: "Cancelled", tone: "danger" },
+  removed: { label: "Removed", tone: "danger" }, // the driver removed an accepted rider
   completed: { label: "Completed", tone: "success" },
   // Driver's trip
   requests: { label: (count) => `${count} ${count === 1 ? "Request" : "Requests"}`, tone: "warning" },

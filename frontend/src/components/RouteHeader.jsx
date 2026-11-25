@@ -3,7 +3,7 @@ import { formatTime } from "../format.js";
 import Card from "./Card.jsx";
 import DateChip from "./DateChip.jsx";
 
-// Top card on Ride details and Manage requests.
+// Top card on Ride details (rider's and driver's view).
 //
 // <RouteHeader
 //   departAt={ride.depart_at}

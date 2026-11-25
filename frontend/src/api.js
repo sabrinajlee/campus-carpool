@@ -1,29 +1,15 @@
 import { mockGetRide, mockRequestSeat, mockSearchRides } from "./mocks/rides.js";
 
+// Every backend call goes through this file (auth calls are in auth/authApi.js).
+// URL conventions, bodies, response shapes and error codes: docs/api-spec.md.
+// The functions unwrap the response key ({ ride } → ride), and every call throws
+// ApiError, so pages can check err.status (404 → /error) and err.code ("RIDE_FULL").
+
 const API_URL = import.meta.env.VITE_API_URL;
+
+// VITE_USE_MOCKS=true answers searchRides, getRide and requestSeat from src/mocks/rides.js,
+// so Explore and Ride details can be tried before the backend has /api/rides.
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
-
-// Changed (P11 Ride details): apiGet now throws an ApiError, like apiPost and apiPatch.
-// Before, it threw a plain Error with only a message, so pages couldn't tell a 404
-// (ride doesn't exist -> go to /error) from a network or server failure (show Retry).
-// Now callers can check err.status and err.code.
-// Successful responses work the same as before, so existing callers like
-// getMyTrips don't need changes.
-export async function apiGet(path) {
-  const res = await fetch(`${API_URL}${path}`, { credentials: "include" });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new ApiError(
-        res.status,
-        data.error?.code ?? "UNKNOWN",
-        data.error?.message ?? `GET ${path} failed: ${res.status}`
-    );
-  }
-  return data;
-}
-
-export const getMyTrips = () => apiGet("/api/me/trips");
-
 
 export class ApiError extends Error {
   constructor(status, code, message) {
@@ -33,11 +19,11 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiPost(path, body) {
+async function request(method, path, body) {
   const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
+    method,
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
@@ -51,76 +37,65 @@ export async function apiPost(path, body) {
   return data;
 }
 
-// Car details. PROPOSED endpoints: not in docs/api-spec.md or the backend yet.
-// GET returns { vehicle: {...} | null }. POST saves the vehicle (make, model, colour, plate, seats).
-export const getMyVehicle = () => apiGet("/api/me/vehicle");
-export const saveMyVehicle = (vehicle) => apiPost("/api/me/vehicle", vehicle);
+export const apiGet = (path) => request("GET", path);
+export const apiPost = (path, body) => request("POST", path, body);
+export const apiPut = (path, body) => request("PUT", path, body);
+export const apiPatch = (path, body) => request("PATCH", path, body);
 
-// Was your ride completed? GET /rides/<id> is in docs/api-spec.md (draft).
-// PROPOSED: PATCH /requests/<id>/complete marks my accepted request as completed.
-// Not in docs/api-spec.md or the backend yet, and needs request status `completed`.
-async function apiPatch(path, body) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "PATCH",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new ApiError(
-      res.status,
-      data.error?.code ?? "UNKNOWN",
-      data.error?.message ?? "Something went wrong. Please try again."
-    );
-  }
-  return data;
-}
+// ---------- Me ----------
 
-// GET /api/rides/<id> returns { "ride": {...} } (same wrapping as { "user": ... }); this returns the ride itself.
-export const getRide = (id) =>
-    USE_MOCKS
-        ? mockGetRide(id)
-        : apiGet(`/api/rides/${id}`).then((data) => data.ride);
-export const completeRequest = (requestId) => apiPatch(`/api/requests/${requestId}/complete`);
+// PATCH /api/me { name?, phone? } → { user }. Returns the updated user.
+export const updateMe = (changes) => apiPatch("/api/me", changes).then((data) => data.user);
 
-// P9 Explore. Proposed, not in the backend yet:
-// GET /api/rides?destination=&departs_after=&departs_before=  ->  { rides: [...] }
-export async function searchRides({ destination = "", departsAfter, departsBefore } = {}) {
+// GET /api/me/vehicle → { vehicle: {...} | null }. Returns the vehicle or null.
+export const getMyVehicle = () => apiGet("/api/me/vehicle").then((data) => data.vehicle);
+
+// PUT /api/me/vehicle { make, model, colour, plate, seats } → { vehicle }. Creates or replaces it.
+export const saveMyVehicle = (vehicle) => apiPut("/api/me/vehicle", vehicle).then((data) => data.vehicle);
+
+// GET /api/me/trips → { driving: [...], riding: [...] }
+export const getMyTrips = () => apiGet("/api/me/trips");
+
+// ---------- Rides ----------
+
+// GET /api/rides?destination=&departs_after=&departs_before= → { rides: [...] }
+// departsAfter / departsBefore are ISO times (Explore passes the start and end of the picked day).
+export function searchRides({ destination = "", departsAfter, departsBefore } = {}) {
   if (USE_MOCKS) return mockSearchRides({ destination, departsAfter, departsBefore });
   const params = new URLSearchParams();
   if (destination) params.set("destination", destination);
   if (departsAfter) params.set("departs_after", departsAfter);
   if (departsBefore) params.set("departs_before", departsBefore);
-  const qs = params.toString();
-  const data = await apiGet(`/api/rides${qs ? `?${qs}` : ""}`);
-  return data.rides;
+  const query = params.toString();
+  return apiGet(`/api/rides${query ? `?${query}` : ""}`).then((data) => data.rides);
 }
 
-// P11 Request a seat. Proposed, not in the backend yet:
-// POST /api/rides/:id/requests  ->  201 { request: {...} }
-// Error codes: ride_full, ride_cancelled, already_requested
-export async function requestSeat(rideId) {
-  if (USE_MOCKS) return mockRequestSeat(rideId);
-  const data = await apiPost(`/api/rides/${rideId}/requests`, {});
-  return data.request;
-}
-// Ride details: the rider's request and the driver's own ride.
-// Routes are from docs/api-spec.md (draft); none are in the backend yet.
+// POST /api/rides → 201 { ride }
+export const postRide = (ride) => apiPost("/api/rides", ride).then((data) => data.ride);
 
-// GET /api/rides/:id/requests -> { requests: [{ id, status, rider: { id, name, phone, email } }] }
-// rider.phone / rider.email only once the request is accepted.
-export const getRideRequests = (rideId) =>
-  apiGet(`/api/rides/${rideId}/requests`).then((data) => data.requests);
+// GET /api/rides/<id> → { ride }
+export const getRide = (id) =>
+  USE_MOCKS ? mockGetRide(id) : apiGet(`/api/rides/${id}`).then((data) => data.ride);
 
-// PATCH /api/requests/:id { status: "accepted" | "declined" } -> { request: {...} }
-// Also removes a confirmed rider (status "declined"), as in docs/api-spec.md.
-// Error code: no_seats_left (another accept took the last seat).
-export const respondToRequest = (requestId, status) =>
-  apiPatch(`/api/requests/${requestId}`, { status }).then((data) => data.request);
+// PATCH /api/rides/<id>/cancel → { ride } (driver)
+export const cancelRide = (id) => apiPatch(`/api/rides/${id}/cancel`).then((data) => data.ride);
 
-// PATCH /api/requests/:id/cancel  (rider cancels their own request)
-export const cancelMyRequest = (requestId) => apiPatch(`/api/requests/${requestId}/cancel`);
+// ---------- Ride requests ----------
 
-// PATCH /api/rides/:id/cancel  (driver cancels their own ride)
-export const cancelRide = (rideId) => apiPatch(`/api/rides/${rideId}/cancel`);
+// POST /api/rides/<id>/requests → 201 { request } (rider asks for one seat)
+// Errors: RIDE_FULL, RIDE_CANCELLED, ALREADY_REQUESTED, OWN_RIDE
+export const requestSeat = (rideId) =>
+  USE_MOCKS ? mockRequestSeat(rideId) : apiPost(`/api/rides/${rideId}/requests`).then((data) => data.request);
+
+// GET /api/rides/<id>/requests → { requests: [...] } (driver of that ride only)
+export const getRideRequests = (rideId) => apiGet(`/api/rides/${rideId}/requests`).then((data) => data.requests);
+
+// Status changes. Each one → { request }, or 409 INVALID_STATUS from the wrong status.
+const requestAction = (action) => (requestId) =>
+  apiPatch(`/api/requests/${requestId}/${action}`).then((data) => data.request);
+
+export const acceptRequest = requestAction("accept"); // driver: pending → accepted (409 NO_SEATS_LEFT)
+export const declineRequest = requestAction("decline"); // driver: pending → declined
+export const removeRider = requestAction("remove"); // driver: accepted → removed
+export const cancelRequest = requestAction("cancel"); // rider: pending or accepted → cancelled
+export const completeRequest = requestAction("complete"); // rider: accepted, after departure → completed
