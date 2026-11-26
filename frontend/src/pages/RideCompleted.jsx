@@ -19,7 +19,6 @@ import "./RideCompleted.css";
 // status: rides.status (open, full, cancelled, completed)
 // my_request: the logged-in rider's ride_requests row (null if they never asked)
 // my_request.status: pending, accepted, declined, cancelled, removed, completed
-//   (removed and completed still need a migration)
 //
 // Completed! calls PATCH /api/requests/<my_request.id>/complete (in docs/api-spec.md, not in the backend yet).
 

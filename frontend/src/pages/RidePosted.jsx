@@ -21,7 +21,7 @@ import "./RidePosted.css";
 // ---------- Sample data for testing ----------
 // While USE_SAMPLE_DATA is true, the page shows the ride below instead of
 // calling the backend. Set it to false once GET /api/rides/:id exists.
-const USE_SAMPLE_DATA = true;
+const USE_SAMPLE_DATA = false;
 
 function sampleRide(id) {
   // Three days from now at 4:30 PM, so it always reads as an upcoming ride.
