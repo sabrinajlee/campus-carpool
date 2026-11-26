@@ -37,6 +37,7 @@ export default function PickupDropoff() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [needsVehicle, setNeedsVehicle] = useState(false);
 
   // Opened /post/pickup directly, so there's no step 1 data.
   if (!trip) {
@@ -82,6 +83,7 @@ export default function PickupDropoff() {
       navigate(`/rides/${ride.id}/posted`, { replace: true, state: { ride } });
     } catch (err) {
       setSubmitError(err.message || "Couldn't post your ride. Try again.");
+      setNeedsVehicle(err.code === "NO_VEHICLE");
       setSubmitting(false);
     }
   }
@@ -116,6 +118,7 @@ export default function PickupDropoff() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             multiline
+            maxLength={500}
           />
         </div>
 
@@ -139,6 +142,18 @@ export default function PickupDropoff() {
           <p className="pickup-error" role="alert">
             {submitError}
           </p>
+        )}
+
+        {/* Until Post a ride has its "add a vehicle first" dialog, the server's NO_VEHICLE lands here */}
+        {needsVehicle && (
+          <Button
+            type="button"
+            variant="secondary"
+            fullWidth
+            onClick={() => navigate("/profile/vehicle?next=/post")}
+          >
+            Add your vehicle
+          </Button>
         )}
 
         <Button type="submit" fullWidth disabled={submitting} className="pickup-submit">

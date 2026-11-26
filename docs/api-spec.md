@@ -1,6 +1,6 @@
 # API Specification
 
-> **Status:** Auth endpoints implemented. Me, rides and ride requests: draft (the frontend already calls them through `frontend/src/api.js`).
+> **Status:** Implemented: auth, `POST /rides`, `GET /rides/<id>`. Draft: `/me/*`, ride search, cancel, and ride requests (the frontend already calls them through `frontend/src/api.js`).
 
 ## Conventions
 
@@ -181,7 +181,7 @@ The frontend puts the returned user in `AuthContext`, which is how onboarding en
 - `passengers`: names of riders whose request was accepted.
 - `seats_left`: seats still open on the ride (shown on pending requests).
 
-## Rides (draft)
+## Rides
 
 ### The ride object
 
@@ -207,7 +207,7 @@ Every endpoint that returns a ride uses this shape, as seen by the logged-in use
 - `my_request`: the logged-in user's request on this ride, or `null` (seen from Explore). Ride details and Was your ride completed? use its `id` for `/cancel` and `/complete`.
 - `driver.phone`, `driver.email` and `vehicle` (`colour`, `make`, `model`, `plate`, `seats`): see [Who sees contact info](#who-sees-contact-info).
 
-### GET `/rides?destination=&departs_after=&departs_before=` 🔒
+### GET `/rides?destination=&departs_after=&departs_before=` 🔒 (draft)
 
 All filters are optional. `destination` matches part of the name, ignoring case. `departs_after` and `departs_before` are ISO times (Explore sends the start and end of the picked day in the user's time zone). Returns **200** `{ "rides": [ride, ...] }`, soonest first, without full, cancelled or past rides.
 
@@ -232,7 +232,7 @@ All filters are optional. `destination` matches part of the name, ignoring case.
 
 **200** `{ "ride": {...} }` · **404** `NOT_FOUND` (Ride details then goes to `/error`)
 
-### PATCH `/rides/<id>/cancel` 🔒
+### PATCH `/rides/<id>/cancel` 🔒 (draft)
 
 Driver only. Sets the ride to `cancelled`, hides it from Explore, and emails every pending and accepted rider. **200** `{ "ride": {...} }`
 
@@ -275,4 +275,4 @@ No body. Each returns **200** `{ "request": {...} }` in the same shape as `GET /
 | `PATCH /requests/<id>/cancel` | Rider | `pending`, `accepted` | `cancelled` | Gives the seat back if it was accepted. Emails the driver. |
 | `PATCH /requests/<id>/complete` | Rider | `accepted`, after `depart_at` | `completed` | Saves the completion for ride history later. |
 
-`removed` and `completed` aren't in the `ride_requests` status constraint yet (see `docs/erd.md`).
+`removed` and `completed` are allowed by the `ride_requests` status constraint (see `docs/erd.md`).

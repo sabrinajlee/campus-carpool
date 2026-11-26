@@ -107,6 +107,7 @@ export default function PostRide() {
           onChange={update("origin")}
           error={errors.origin}
           autoComplete="off"
+          maxLength={120}
         />
         <TextInput
           label="Going to"
@@ -115,6 +116,7 @@ export default function PostRide() {
           onChange={update("destination")}
           error={errors.destination}
           autoComplete="off"
+          maxLength={120}
         />
         <TextInput
           label="Date"
